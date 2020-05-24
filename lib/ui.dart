@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:colorful_cmd/utils.dart';
 import 'package:console/console.dart';
 import 'package:console/curses.dart';
+import 'package:musicfox/languages.dart';
 
 class MusicFoxUI extends Window {
   bool showWelcome;
@@ -11,16 +12,25 @@ class MusicFoxUI extends Window {
   String welcomeMsg;
   Color primaryColor;
   int welcomeDuration;
+  Map<String, String> lang;
+  List<String> list;
 
   bool _hasShownWelcome = false;
+  int _selectIndex = 0;
+  int _startRow;
+  int _startColumn;
+  bool _doubleColumn;
+  String _menuTitle = '网易云音乐';
 
   MusicFoxUI(
       {this.showTitle = true,
       this.showWelcome = true,
       this.welcomeMsg = 'musicfox',
       dynamic primaryColor = 'random',
-      this.welcomeDuration = 2000})
-      : super('musicfox') {
+      this.welcomeDuration = 2000,
+      this.list,
+      this.lang = ZH})
+      : super(' musicfox ') {
     if ((!(primaryColor is String) || primaryColor != 'random') &&
         !(primaryColor is Color)) {
       primaryColor = 'random';
@@ -30,6 +40,12 @@ class MusicFoxUI extends Window {
     } else if (primaryColor is Color) {
       this.primaryColor = primaryColor;
     }
+    if (list == null) {
+      list ??= ['help'];
+    } else {
+      list.add('help');
+    }
+    list = _toLocal(list, lang);
   }
 
   @override
@@ -39,14 +55,14 @@ class MusicFoxUI extends Window {
 
     if (showWelcome) {
       if (_hasShownWelcome && showTitle) {
-        displayTitle();
+        _displayTitle();
       }
     } else if (showTitle) {
-      displayTitle();
+      _displayTitle();
     }
 
     if (showWelcome && !_hasShownWelcome) {
-      displayWelcome(welcomeMsg);
+      _displayWelcome(welcomeMsg);
       Timer.periodic(Duration(milliseconds: 100), (timer) {
         if (timer.tick >= (welcomeDuration / 100).round()) {
           _hasShownWelcome = true;
@@ -56,24 +72,28 @@ class MusicFoxUI extends Window {
           var column = ((Console.columns - 26) / 2).floor();
           Console.write('\r');
           Console.moveToColumn(column);
-          Console.setTextColor(Color.GRAY.id, bright: Color.GRAY.bright, xterm: Color.GRAY.xterm);
-          Console.write('Enter after ${(welcomeDuration / 1000 - timer.tick * 0.1).toStringAsFixed(1)} seconds...');
+          Console.setTextColor(Color.GRAY.id,
+              bright: Color.GRAY.bright, xterm: Color.GRAY.xterm);
+          Console.write(
+              'Enter after ${(welcomeDuration / 1000 - timer.tick * 0.1).toStringAsFixed(1)} seconds...');
         }
       });
+    } else {
+      _displayList();
     }
   }
 
   @override
   void initialize() {
-    Keyboard.bindKeys(['q', 'Q']).listen((_) {
-      close();
-      Console.resetAll();
-      Console.eraseDisplay();
-      exit(0);
-    });
+    Console.hideCursor();
+    Keyboard.bindKeys(['q', 'Q']).listen(_quit);
+    Keyboard.bindKeys([KeyCode.UP, 'k', 'K']).listen(_moveUp);
+    Keyboard.bindKeys([KeyCode.DOWN, 'j', 'J']).listen(_moveDown);
+    Keyboard.bindKeys([KeyCode.LEFT, 'h', 'H']).listen(_moveLeft);
+    Keyboard.bindKeys([KeyCode.RIGHT, 'l', 'L']).listen(_moveRight);
   }
 
-  void displayWelcome(String welcomeMsg) {
+  void _displayWelcome(String welcomeMsg) {
     var msg = formatChars(welcomeMsg);
     var lines = msg.split('\n');
     var width = lines.length > 1 ? lines[1].length : 0;
@@ -81,7 +101,8 @@ class MusicFoxUI extends Window {
     var column = ((Console.columns - width) / 2).floor();
     var row = ((Console.rows - height) / 3).floor();
 
-    Console.setTextColor(primaryColor.id, bright: primaryColor.bright, xterm: primaryColor.xterm);
+    Console.setTextColor(primaryColor.id,
+        bright: primaryColor.bright, xterm: primaryColor.xterm);
     lines.forEach((line) {
       Console.moveCursor(column: column, row: row);
       Console.write(line);
@@ -90,9 +111,43 @@ class MusicFoxUI extends Window {
     Console.moveCursor(column: column, row: row);
   }
 
-  void displayTitle() {
-    _repeatFunction((i) => Console.write(' '), Console.columns);
-    Console.setTextColor(primaryColor.id, bright: primaryColor.bright, xterm: primaryColor.xterm);
+  void _displayTitle() {
+    var width = Console.columns;
+    var height = Console.rows;
+
+    Console.resetAll();
+    _repeatFunction((i) {
+      Console.setTextColor(Color.GRAY.id, bright: Color.GRAY.bright, xterm: Color.GRAY.xterm);
+      if (i == 1 || i == width) {
+        Console.write('+');
+        Console.moveCursorDown(height);
+        Console.moveCursorBack();
+        Console.write('+');
+        Console.moveCursorUp(height);
+      } else {
+        Console.write('=');
+        Console.moveCursorDown(height);
+        Console.moveCursorBack();
+        Console.write('=');
+        Console.moveCursorUp(height);
+      }
+    }, width);
+    _repeatFunction((i) {
+      if (i == 1 || i == height) {
+        Console.moveCursorDown();
+        return;
+      }
+      Console.write('|');
+      Console.moveCursorForward(width);
+      Console.write('|');
+      Console.moveCursorDown();
+      Console.moveCursorBack(width);
+
+    }, height);
+
+    Console.resetAll();
+    Console.setTextColor(primaryColor.id,
+        bright: primaryColor.bright, xterm: primaryColor.xterm);
     Console.moveCursor(
       row: 1,
       column: (Console.columns / 2).round() - (title.length / 2).round(),
@@ -104,14 +159,127 @@ class MusicFoxUI extends Window {
     Console.resetBackgroundColor();
   }
 
-  void moveCenterColumn() {
-    var row = (Console.rows / 2).round();
-    Console.moveCursor(row: row, column: 0);
+  void _displayList() {
+    var width = Console.columns;
+    var height = Console.rows;
+    _doubleColumn = width >= 60;
+    _startRow = (height / 3).floor();
+    _startColumn = _doubleColumn ? ((width - 60) / 2).floor() : ((width - 20) / 2).floor();
+
+    Console.resetAll();
+    Console.moveCursor(row: _startRow - 3, column: _doubleColumn ? _startColumn + 15 : _startColumn + 6);
+    Console.setTextColor(Color.GREEN.id, bright: Color.GREEN.bright, xterm: Color.GREEN.xterm);
+    Console.write(_menuTitle);
+
+    Console.resetAll();
+    Console.setTextColor(Color.WHITE.id, bright: false, xterm: false);
+    var lines = _doubleColumn ? (list.length / 2).ceil() : list.length;
+    for (var i = 0; i < lines; i++) {
+      _printLine(i);
+    }
   }
+
+  void _printLine(int line) {
+    Console.write('\r');
+    var index = _doubleColumn ? line * 2 : line;
+    Console.moveCursor(row: _startRow + line, column: _doubleColumn ? _startColumn + 15 : _startColumn + 6);
+    _printItem(index);
+    if (_doubleColumn && index < list.length - 1) {
+      Console.moveCursor(row: _startRow + line, column: _startColumn + 40);
+      _printItem(index + 1);
+    }
+  }
+
+  void _printItem(int index) {
+    Console.moveCursorBack(4);
+    if (_selectIndex == index) {
+      Console.setTextColor(primaryColor.id, bright: primaryColor.bright, xterm: primaryColor.xterm);
+      Console.write(' => ${index}. ${list[index]}');
+      Console.resetAll();
+    } else {
+      Console.write('    ${index}. ${list[index]}');
+    }
+  }
+
+  void _quit(_) {
+    close();
+    Console.resetAll();
+    Console.eraseDisplay();
+    exit(0);
+  }
+
+  void _moveDown(_) {
+    int curLine;
+    if (_doubleColumn) {
+      if (_selectIndex + 2 > list.length - 1) {
+        return;
+      }
+      _selectIndex += 2;
+      curLine = (_selectIndex / 2).floor();
+    } else {
+      if (_selectIndex + 1 > list.length - 1) {
+        return;
+      }
+      _selectIndex++;
+      curLine = _selectIndex;
+    }
+    _printLine(curLine - 1);
+    _printLine(curLine);
+  }
+
+  void _moveUp(_) {
+    int curLine;
+    if (_doubleColumn) {
+      if (_selectIndex - 2 < 0) {
+        return;
+      }
+      _selectIndex -= 2;
+      curLine = (_selectIndex / 2).floor();
+    } else {
+      if (_selectIndex - 1 < 0) {
+        return;
+      }
+      _selectIndex--;
+      curLine = _selectIndex;
+    }
+    _printLine(curLine + 1);
+    _printLine(curLine);
+  }
+
+  void _moveLeft(_) {
+    if (!_doubleColumn || _selectIndex % 2 == 0 || _selectIndex - 1 < 0) {
+      return;
+    }
+    _selectIndex -= 1;
+    var curLine = (_selectIndex / 2).floor();
+    _printLine(curLine);
+  }
+
+  void _moveRight(_) {
+    if (!_doubleColumn || _selectIndex % 2 != 0 || _selectIndex + 1 > list.length - 1) {
+      return;
+    }
+    _selectIndex += 1;
+    var curLine = (_selectIndex / 2).floor();
+    _printLine(curLine);
+  }
+
 }
 
 void _repeatFunction(Function func, int times) {
   for (var i = 1; i <= times; i++) {
     func(i);
   }
+}
+
+List<String> _toLocal(List<String> list, Map<String, String> lang) {
+  var res = list.map((item) {
+    if (lang.containsKey(item)) {
+      return lang[item];
+    } else {
+      return item;
+    }
+  });
+
+  return res.toList();
 }
