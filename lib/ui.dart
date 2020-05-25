@@ -5,6 +5,7 @@ import 'package:colorful_cmd/utils.dart';
 import 'package:console/console.dart';
 import 'package:console/curses.dart';
 import 'package:musicfox/languages.dart';
+import 'package:musicfox/menu_item.dart';
 
 class MusicFoxUI extends Window {
   bool showWelcome;
@@ -21,6 +22,7 @@ class MusicFoxUI extends Window {
   int _startColumn;
   bool _doubleColumn;
   String _menuTitle = '网易云音乐';
+  final List<MenuItem> _menuStack = [];
 
   MusicFoxUI(
       {this.showTitle = true,
@@ -93,6 +95,37 @@ class MusicFoxUI extends Window {
     Keyboard.bindKeys([KeyCode.RIGHT, 'l', 'L']).listen(_moveRight);
   }
 
+  void enterMenu([List<String> sonList]) {
+    if (_selectIndex > list.length) return;
+    sonList ??= [];
+    _menuStack.add(MenuItem(list, _selectIndex, _menuTitle));
+
+    _earseMenuTitle();
+    _menuTitle = list[_selectIndex];
+    _selectIndex = 0;
+    list = sonList;
+    _displayList();
+  }
+
+  void backMenu() {
+    if (_menuStack.isEmpty) return;
+    var menu = _menuStack.removeLast();
+
+    _earseMenuTitle();
+    list = menu.list;
+    _selectIndex = menu.index;
+    _menuTitle = menu.menuTitle;
+    _displayList();
+  }
+
+  void _earseMenuTitle() {
+    var lines = _doubleColumn ? (list.length / 2).ceil() : list.length;
+    _repeatFunction((i) {
+      Console.moveCursor(row: _startRow + i - 1);
+      Console.eraseLine();
+    }, lines);
+  }
+
   void _displayWelcome(String welcomeMsg) {
     var msg = formatChars(welcomeMsg);
     var lines = msg.split('\n');
@@ -132,18 +165,6 @@ class MusicFoxUI extends Window {
         Console.moveCursorUp(height);
       }
     }, width);
-    _repeatFunction((i) {
-      if (i == 1 || i == height) {
-        Console.moveCursorDown();
-        return;
-      }
-      Console.write('|');
-      Console.moveCursorForward(width);
-      Console.write('|');
-      Console.moveCursorDown();
-      Console.moveCursorBack(width);
-
-    }, height);
 
     Console.resetAll();
     Console.setTextColor(primaryColor.id,
@@ -169,28 +190,29 @@ class MusicFoxUI extends Window {
     Console.resetAll();
     Console.moveCursor(row: _startRow - 3, column: _doubleColumn ? _startColumn + 15 : _startColumn + 6);
     Console.setTextColor(Color.GREEN.id, bright: Color.GREEN.bright, xterm: Color.GREEN.xterm);
+    Console.eraseLine();
     Console.write(_menuTitle);
 
     Console.resetAll();
     Console.setTextColor(Color.WHITE.id, bright: false, xterm: false);
     var lines = _doubleColumn ? (list.length / 2).ceil() : list.length;
     for (var i = 0; i < lines; i++) {
-      _printLine(i);
+      _displayLine(i);
     }
   }
 
-  void _printLine(int line) {
+  void _displayLine(int line) {
     Console.write('\r');
     var index = _doubleColumn ? line * 2 : line;
     Console.moveCursor(row: _startRow + line, column: _doubleColumn ? _startColumn + 15 : _startColumn + 6);
-    _printItem(index);
+    _displayItem(index);
     if (_doubleColumn && index < list.length - 1) {
       Console.moveCursor(row: _startRow + line, column: _startColumn + 40);
-      _printItem(index + 1);
+      _displayItem(index + 1);
     }
   }
 
-  void _printItem(int index) {
+  void _displayItem(int index) {
     Console.moveCursorBack(4);
     if (_selectIndex == index) {
       Console.setTextColor(primaryColor.id, bright: primaryColor.bright, xterm: primaryColor.xterm);
@@ -202,6 +224,7 @@ class MusicFoxUI extends Window {
   }
 
   void _quit(_) {
+    Console.showCursor();
     close();
     Console.resetAll();
     Console.eraseDisplay();
@@ -223,8 +246,8 @@ class MusicFoxUI extends Window {
       _selectIndex++;
       curLine = _selectIndex;
     }
-    _printLine(curLine - 1);
-    _printLine(curLine);
+    _displayLine(curLine - 1);
+    _displayLine(curLine);
   }
 
   void _moveUp(_) {
@@ -242,8 +265,8 @@ class MusicFoxUI extends Window {
       _selectIndex--;
       curLine = _selectIndex;
     }
-    _printLine(curLine + 1);
-    _printLine(curLine);
+    _displayLine(curLine + 1);
+    _displayLine(curLine);
   }
 
   void _moveLeft(_) {
@@ -252,7 +275,7 @@ class MusicFoxUI extends Window {
     }
     _selectIndex -= 1;
     var curLine = (_selectIndex / 2).floor();
-    _printLine(curLine);
+    _displayLine(curLine);
   }
 
   void _moveRight(_) {
@@ -261,7 +284,7 @@ class MusicFoxUI extends Window {
     }
     _selectIndex += 1;
     var curLine = (_selectIndex / 2).floor();
-    _printLine(curLine);
+    _displayLine(curLine);
   }
 
 }
