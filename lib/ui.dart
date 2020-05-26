@@ -15,13 +15,13 @@ class MusicFoxUI extends Window {
   int welcomeDuration;
   Map<String, String> lang;
   List<String> list;
+  String menuTitle;
 
   bool _hasShownWelcome = false;
   int _selectIndex = 0;
   int _startRow;
   int _startColumn;
   bool _doubleColumn;
-  String _menuTitle = '网易云音乐';
   final List<MenuItem> _menuStack = [];
 
   MusicFoxUI(
@@ -31,7 +31,8 @@ class MusicFoxUI extends Window {
       dynamic primaryColor = 'random',
       this.welcomeDuration = 2000,
       this.list,
-      this.lang = ZH})
+      this.lang = ZH,
+      this.menuTitle = '------'})
       : super(' musicfox ') {
     if ((!(primaryColor is String) || primaryColor != 'random') &&
         !(primaryColor is Color)) {
@@ -56,11 +57,17 @@ class MusicFoxUI extends Window {
     Console.moveCursor(row: 1, column: 1);
 
     if (showWelcome) {
-      if (_hasShownWelcome && showTitle) {
+      if (_hasShownWelcome) {
+        _displayBorder();
+        if (showTitle) {
+          _displayTitle();
+        }
+      }
+    } else {
+      _displayBorder();
+      if (showTitle) {
         _displayTitle();
       }
-    } else if (showTitle) {
-      _displayTitle();
     }
 
     if (showWelcome && !_hasShownWelcome) {
@@ -93,15 +100,25 @@ class MusicFoxUI extends Window {
     Keyboard.bindKeys([KeyCode.DOWN, 'j', 'J']).listen(_moveDown);
     Keyboard.bindKeys([KeyCode.LEFT, 'h', 'H']).listen(_moveLeft);
     Keyboard.bindKeys([KeyCode.RIGHT, 'l', 'L']).listen(_moveRight);
+    Keyboard.bindKey('n').listen((_) {
+      enterMenu([
+        '123',
+        '456',
+        '789'
+      ]);
+    });
+    Keyboard.bindKey('b').listen((_) {
+      backMenu();
+    });
   }
 
   void enterMenu([List<String> sonList]) {
     if (_selectIndex > list.length) return;
     sonList ??= [];
-    _menuStack.add(MenuItem(list, _selectIndex, _menuTitle));
+    _menuStack.add(MenuItem(list, _selectIndex, menuTitle));
 
     _earseMenuTitle();
-    _menuTitle = list[_selectIndex];
+    menuTitle = list[_selectIndex];
     _selectIndex = 0;
     list = sonList;
     _displayList();
@@ -114,7 +131,7 @@ class MusicFoxUI extends Window {
     _earseMenuTitle();
     list = menu.list;
     _selectIndex = menu.index;
-    _menuTitle = menu.menuTitle;
+    menuTitle = menu.menuTitle;
     _displayList();
   }
 
@@ -144,7 +161,7 @@ class MusicFoxUI extends Window {
     Console.moveCursor(column: column, row: row);
   }
 
-  void _displayTitle() {
+  void _displayBorder() {
     var width = Console.columns;
     var height = Console.rows;
 
@@ -154,7 +171,7 @@ class MusicFoxUI extends Window {
       if (i == 1 || i == width) {
         Console.write('+');
         Console.moveCursorDown(height);
-        Console.moveCursorBack();
+        if (i != width) Console.moveCursorBack();
         Console.write('+');
         Console.moveCursorUp(height);
       } else {
@@ -165,6 +182,9 @@ class MusicFoxUI extends Window {
         Console.moveCursorUp(height);
       }
     }, width);
+  }
+
+  void _displayTitle() {
 
     Console.resetAll();
     Console.setTextColor(primaryColor.id,
@@ -186,12 +206,20 @@ class MusicFoxUI extends Window {
     _doubleColumn = width >= 60;
     _startRow = (height / 3).floor();
     _startColumn = _doubleColumn ? ((width - 60) / 2).floor() : ((width - 20) / 2).floor();
-
-    Console.resetAll();
-    Console.moveCursor(row: _startRow - 3, column: _doubleColumn ? _startColumn + 15 : _startColumn + 6);
-    Console.setTextColor(Color.GREEN.id, bright: Color.GREEN.bright, xterm: Color.GREEN.xterm);
-    Console.eraseLine();
-    Console.write(_menuTitle);
+    
+    if (showTitle && _startRow > 2) {
+      var row = _startRow > 4 ? _startRow - 3 : 2;
+      Console.moveCursor(row: row, column: _doubleColumn ? _startColumn + 15 : _startColumn + 6);
+      Console.setTextColor(Color.GREEN.id, bright: Color.GREEN.bright, xterm: Color.GREEN.xterm);
+      Console.eraseLine();
+      Console.write(menuTitle);
+    } else if (!showTitle && _startRow > 1) {
+      var row = _startRow > 3 ? _startRow - 3 : 2;
+      Console.moveCursor(row: row, column: _doubleColumn ? _startColumn + 15 : _startColumn + 6);
+      Console.setTextColor(Color.GREEN.id, bright: Color.GREEN.bright, xterm: Color.GREEN.xterm);
+      Console.eraseLine();
+      Console.write(menuTitle);
+    }
 
     Console.resetAll();
     Console.setTextColor(Color.WHITE.id, bright: false, xterm: false);
