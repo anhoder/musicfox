@@ -1,3 +1,4 @@
+import 'package:colorful_cmd/utils.dart';
 import 'package:console/console.dart';
 
 class RainbowProgress {
@@ -50,7 +51,8 @@ class RainbowProgress {
     var out = StringBuffer(before);
 
     for (var x = 1; x < count; x++) {
-      out.write(completeChar);
+      var content = ColorText().setColor(Color((x % 6) + 1)).text(completeChar).normal();
+      out.write(content);
     }
 
     out.write(forwardChar);
