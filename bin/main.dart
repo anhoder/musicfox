@@ -1,4 +1,3 @@
-
 import 'package:colorful_cmd/component.dart';
 import 'package:musicfox/lang/chinese.dart';
 
