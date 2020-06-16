@@ -1,4 +1,5 @@
 import 'package:colorful_cmd/component.dart';
+import 'package:colorful_cmd/utils.dart';
 import 'package:console/console.dart';
 import 'package:musicfox/lang/chinese.dart';
 import 'package:musicfox/ui/menu_content/daily_recommend_songs.dart';
@@ -10,10 +11,10 @@ final MENU_CONTENTS = <IMenuContent>[
 ];
 
 class MainUI {
-  WindowUI window;
+  WindowUI _window;
 
   MainUI() {
-    window = WindowUI(
+    _window = WindowUI(
       name: 'MusicFox', 
       welcomeMsg: 'MUSICFOX', 
       menu: <String>[
@@ -38,7 +39,24 @@ class MainUI {
 
   /// 显示UI
   void display() {
-    window.display();
+    _window.display();
+  }
+
+  /// 清除菜单
+  void earseMenu() {
+    _window.earseMenu();
+  }
+
+  /// 输出错误
+  void error(String text) {
+    writeLine(ColorText().red(text).normal().toString());
+  }
+
+  /// 写信息
+  void writeLine(String text) {
+    earseMenu();
+    Console.moveCursor(row: _window.startRow, column: _window.startColumn);
+    Console.write(text);
   }
 
   /// 进入菜单

@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:colorful_cmd/command.dart';
 import 'package:colorful_cmd/logger.dart';
+import 'package:musicfox/exception/response_exception.dart';
 import 'package:musicfox/ui/main_ui.dart';
 
 class Player extends ICmd {
@@ -24,7 +27,13 @@ class Player extends ICmd {
 
   @override
   bool run() {
-    _ui.window.display();
-    return false;
+    try {
+      _ui.display();
+      return false;
+    } on SocketException {
+      _ui.error('网络错误，请检查网络~');
+    } on ResponseException catch (e) {
+      _ui.error(e.toString());
+    }
   }
 }
