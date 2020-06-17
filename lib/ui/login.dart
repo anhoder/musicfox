@@ -1,19 +1,23 @@
 import 'package:colorful_cmd/component.dart';
+import 'package:colorful_cmd/utils.dart';
 import 'package:console/console.dart';
 import 'package:musicfox/cache/i_cache.dart';
 import 'package:musicfox/exception/response_exception.dart';
 import 'package:netease_music_request/request.dart';
 
 Future<void> login(WindowUI ui) async {
+  ui.menuTitle = '用户登录（邮箱或手机号）';
+  ui.displayMenuTitle();
+  
   ui.earseMenu();
 
   Console.showCursor();
   Console.adapter.echoMode = true;
   Console.adapter.lineMode = true;
   Console.moveCursor(row: ui.startRow, column: ui.startColumn);
-  Console.write('账号: ');
+  Console.write(ColorText().normal().text('账号: ').toString());
   Console.moveCursor(row: ui.startRow+2, column: ui.startColumn);
-  Console.write('密码: ');
+  Console.write(ColorText().normal().text('密码: ').toString());
   Console.moveCursorUp(2);
   Future accountInput = readInput('', checker: (response) {
     Console.moveCursor(row: ui.startRow+2, column: ui.startColumn);
@@ -39,6 +43,13 @@ Future<void> login(WindowUI ui) async {
     response = await user.loginByPhone(account, password);
   }
 
+  if (response['code'] == 400) {
+    throw ResponseException('输入错误');
+  } else {
+    if (response['code'] >= 500) {
+      throw ResponseException(response['msg'] ?? '');
+    }
+  }
   if (response['code'] != 200) {
     throw ResponseException('账号或密码错误');
   }

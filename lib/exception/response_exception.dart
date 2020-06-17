@@ -4,6 +4,6 @@ class ResponseException implements Exception {
   ResponseException([this.message]);
 
   @override
-  String toString() => '请求出错: ${message ?? ''}';
+  String toString() => '<!!! 错误: ${message ?? ''} !!!>';
 
 }

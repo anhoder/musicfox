@@ -8,7 +8,7 @@ environment:
 
 dependencies:
   mp3_player: ^0.1.2
-  colorful_cmd: ^1.4.2
+  colorful_cmd: ^1.4.4
   console: ^3.1.0
   netease_music_request: ^1.0.2
 

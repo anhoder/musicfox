@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:colorful_cmd/component.dart';
 import 'package:colorful_cmd/utils.dart';
 import 'package:console/console.dart';
+import 'package:musicfox/exception/response_exception.dart';
 import 'package:musicfox/lang/chinese.dart';
 import 'package:musicfox/ui/menu_content/daily_recommend_songs.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
@@ -61,24 +64,29 @@ class MainUI {
 
   /// 进入菜单
   Future<List<String>> beforeEnterMenu(ui) async {
-    var menuContents = MENU_CONTENTS;
-    Iterable stack = ui.menuStack.length > 1 ? ui.menuStack.getRange(0, ui.menuStack.length - 2) : [];
-    await stack.forEach((menuItem) async {
-      var menu = menuContents[menuItem.index];
-      if (menu is IMenuContent) {
-        menuContents = await menu.getMenuContent(ui);
-      }
-    });
-    var menus = await menuContents[ui.selectIndex].getMenus(ui);
-    if (menus != null && menus.isNotEmpty) return menus;
-    var content = await menuContents[ui.selectIndex].getContent(ui);
-    var row = ui.startRow;
-    content.split('\n').forEach((line) {
-      Console.moveCursor(row: row, column: ui.startColumn);
-      Console.write(line);
-      row++;
-    });
-    return [];
+    try {
+      var menuContents = MENU_CONTENTS;
+      Iterable stack = ui.menuStack.length > 1 ? ui.menuStack.getRange(0, ui.menuStack.length - 2) : [];
+      await stack.forEach((menuItem) async {
+        var menu = menuContents[menuItem.index];
+        if (menu is IMenuContent) {
+          menuContents = await menu.getMenuContent(ui);
+        }
+      });
+      var menus = await menuContents[ui.selectIndex].getMenus(ui);
+      if (menus != null && menus.isNotEmpty) return menus;
+      var content = await menuContents[ui.selectIndex].getContent(ui);
+      var row = ui.startRow;
+      content.split('\n').forEach((line) {
+        Console.moveCursor(row: row, column: ui.startColumn);
+        Console.write(line);
+        row++;
+      });
+    } on SocketException {
+      error('网络错误~, 请稍后重试');
+    } on ResponseException catch (e) {
+      error(e.toString());
+    }
   }
 
   /// 翻页
