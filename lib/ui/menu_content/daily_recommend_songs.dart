@@ -1,13 +1,15 @@
 import 'package:colorful_cmd/component.dart';
+import 'package:colorful_cmd/utils.dart';
 import 'package:musicfox/cache/i_cache.dart';
 import 'package:musicfox/ui/login.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
+import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
 
 class DailyRecommendSongs implements IMenuContent{
   @override
   Future<String> getContent(WindowUI ui) {
-    return Future.value('');
+    return Future.value(''); 
   }
 
   @override
@@ -17,10 +19,32 @@ class DailyRecommendSongs implements IMenuContent{
     if (user == null) await login(ui);
     
     var song = Song();
-    var response = await song.getRecommendSongs();
-    cache.set('song', response);
+    Map response = await song.getRecommendSongs();
+    response = validateResponse(response);
 
-    return Future.value(['1243']);
+    List list = response.containsKey('recommend') ? response['recommend'] : [];
+    ui.pageData = list;
+
+    var res = <String>[];
+    list.forEach((item) {
+      var name = '';
+      if (item.containsKey('name')) {
+        var artistName = '';
+        name = item['name'];
+        if (item.containsKey('artists')) {
+          item['artists'].forEach((artist) {
+            if (artist.containsKey('name')) {
+              artistName = artistName == '' ? artist['name'] : '${artistName},${artist['name']}';
+            }
+          });
+        }
+        artistName = '<${artistName}>';
+        name = '${name} ' + ColorText().gray(artistName).toString();
+      }
+      res.add(name);
+    });
+
+    return Future.value(res);
   }
 
   @override

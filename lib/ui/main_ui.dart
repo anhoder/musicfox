@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:colorful_cmd/component.dart';
 import 'package:colorful_cmd/utils.dart';
 import 'package:console/console.dart';
+import 'package:musicfox/cache/i_cache.dart';
 import 'package:musicfox/exception/response_exception.dart';
 import 'package:musicfox/lang/chinese.dart';
 import 'package:musicfox/ui/menu_content/daily_recommend_songs.dart';
@@ -38,6 +39,7 @@ class MainUI {
       beforeNextPage: beforeNextPage,
       lang: Chinese()
     );
+    CacheFactory.produce();
   }
 
   /// 显示UI
@@ -87,6 +89,7 @@ class MainUI {
     } on ResponseException catch (e) {
       error(e.toString());
     }
+    return [];
   }
 
   /// 翻页

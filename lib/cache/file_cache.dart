@@ -35,36 +35,36 @@ class FileCache implements ICache {
   }
 
   @override
-  Future get(String key) {
-    if (_data.containsKey(key)) return Future.value(_data[key]);
-    return Future.value(null);
+  dynamic get(String key) {
+    if (_data.containsKey(key)) return _data[key];
+    return null;
   }
 
   @override
-  Future<bool> persist() async {
+  bool persist() {
     var json = JsonEncoder().convert(_data);
-    await _file.writeAsString(json, flush: true);
+    _file.writeAsString(json, flush: true);
     return true;
   }
 
   @override
-  Future<bool> set(String key, value) {
+  bool set(String key, value) {
     _data[key] = value;
     persist();
-    return Future.value(true);
+    return true;
   }
 
   @override
-  Future<bool> clear() {
+  bool clear() {
     _data = {};
     persist();
-    return Future.value(true);
+    return true;
   }
 
   @override
-  Future<bool> del(String key) {
+  bool del(String key) {
     if (_data.containsKey(key)) _data.remove(key);
-    return Future.value(true);
+    return true;
   }
   
 }

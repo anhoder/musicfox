@@ -2,15 +2,15 @@ import 'package:musicfox/cache/file_cache.dart';
 
 abstract class ICache {
   
-  Future<bool> set(String key, dynamic value);
+  bool set(String key, dynamic value);
 
-  Future<dynamic> get(String key);
+  dynamic get(String key);
 
-  Future<bool> persist();
+  bool persist();
 
-  Future<bool> clear();
+  bool clear();
 
-  Future<bool> del(String key);
+  bool del(String key);
 }
 
 class CacheFactory {

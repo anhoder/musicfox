@@ -3,6 +3,7 @@ import 'package:colorful_cmd/utils.dart';
 import 'package:console/console.dart';
 import 'package:musicfox/cache/i_cache.dart';
 import 'package:musicfox/exception/response_exception.dart';
+import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
 
 Future<void> login(WindowUI ui) async {
@@ -43,13 +44,8 @@ Future<void> login(WindowUI ui) async {
     response = await user.loginByPhone(account, password);
   }
 
-  if (response['code'] == 400) {
-    throw ResponseException('输入错误');
-  } else {
-    if (response['code'] >= 500) {
-      throw ResponseException(response['msg'] ?? '');
-    }
-  }
+  response = validateResponse(response);
+
   if (response['code'] != 200) {
     throw ResponseException('账号或密码错误');
   }
