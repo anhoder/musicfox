@@ -7,8 +7,11 @@ class MusicInfo {
   String comment;
   String genre;
   String track;
+  Duration duration;
 
-  void setId(int id) => this.id = id; 
+  void setId(int id) => this.id = id;
+
+  void setDuration(Duration duration) => this.duration = duration;
 
   void setValue(String title, String artist, String album, String year, String comment, String genre, String track) {
     this.title = title;

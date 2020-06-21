@@ -70,7 +70,7 @@ class MainUI {
       _playerContainer.listenProgress((progress) => _curProgress.setValue(progress['cur'], progress['left']));
       _playerContainer.listenStatus((status) async {
         _playerStatus.setStatus(status);
-        if (_playerStatus.status == Status.STOPPED) {
+        if (!Platform.isWindows && _playerStatus.status == Status.STOPPED) {
           Timer(Duration(milliseconds: 200), () async {
             if (_playerStatus.status == Status.STOPPED) {
               List songs = _window.pageData;
@@ -179,6 +179,24 @@ class MainUI {
     (await _player).playWithoutList(songUrl['url']);
     _playingMenu = getMenuIndexStack();
     _curMusicInfo.setId(songId);
+    _curMusicInfo.setDuration(Duration(milliseconds: _window.pageData[_curSongIndex]['duration']));
+      Console.moveCursorDown(3);
+    Timer.periodic(Duration(milliseconds: 10), (timer) async {
+      Console.write('\r${timer.tick}');
+      if (timer.tick >= _curMusicInfo.duration.inMilliseconds / 10) {
+        timer.cancel();
+        if (Platform.isWindows) {
+          if (_playerStatus.status == Status.STOPPED) {
+            List songs = _window.pageData;
+            if (songs == null || _curSongIndex >= songs.length - 1) return;
+            _curSongIndex++;
+            Map songInfo = songs[_curSongIndex];
+            if (!songInfo.containsKey('id')) return;
+            await playSong(songInfo['id']);
+          }
+        }
+      }
+    });
   }
 
   /// 是否在播放列表
