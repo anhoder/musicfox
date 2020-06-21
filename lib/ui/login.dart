@@ -13,8 +13,8 @@ Future<void> login(WindowUI ui) async {
   ui.earseMenu();
 
   Console.showCursor();
-  Console.adapter.echoMode = true;
   Console.adapter.lineMode = true;
+  Console.adapter.echoMode = true;
   Console.moveCursor(row: ui.startRow, column: ui.startColumn);
   Console.write(ColorText().normal().text('账号: ').toString());
   Console.moveCursor(row: ui.startRow+2, column: ui.startColumn);
@@ -27,8 +27,8 @@ Future<void> login(WindowUI ui) async {
   });
   Future passwordInput = readInput('', secret: true, checker: (response) {
     Console.hideCursor();
-  Console.adapter.echoMode = false;
-  Console.adapter.lineMode = false;
+    Console.adapter.echoMode = false;
+    Console.adapter.lineMode = false;
     return true;
   });
   var data = await Future.wait(<Future>[accountInput, passwordInput]);
