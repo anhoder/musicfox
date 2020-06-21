@@ -24,6 +24,7 @@ class MainUI {
   WindowUI _window;
   Player _playerContainer;
   int _curSongIndex;
+  String _playingMenu;
 
   // from player
   MusicInfo _curMusicInfo; 
@@ -70,7 +71,7 @@ class MainUI {
       _playerContainer.listenStatus((status) async {
         _playerStatus.setStatus(status);
         if (_playerStatus.status == Status.STOPPED) {
-          Timer(Duration(milliseconds: 500), () async {
+          Timer(Duration(milliseconds: 200), () async {
             if (_playerStatus.status == Status.STOPPED) {
               List songs = _window.pageData;
               if (songs == null || _curSongIndex >= songs.length - 1) return;
@@ -147,7 +148,7 @@ class MainUI {
     return Future.value([]);
   }
 
-  /// 播放音乐
+  /// 空格监听
   void play(_) async {
     List songs = _window.pageData;
     var index = _window.selectIndex;
@@ -157,7 +158,7 @@ class MainUI {
     if (!songInfo.containsKey('id')) return;
 
     var player = (await _player);
-    if (_curMusicInfo.id == songInfo['id']) {
+    if (inPlayingMenu() && _curMusicInfo.id == songInfo['id']) {
       if (_playerStatus.status == Status.PAUSED || _playerStatus.status == Status.STOPPED) {
         player.resume();
       } else {
@@ -169,13 +170,30 @@ class MainUI {
 
   }
 
+  /// 播放指定音乐
   Future<void> playSong(int songId) async {
     var songRequest = request.Song();
     Map songUrl = await songRequest.getSongUrlByWeb(songId);
     songUrl = songUrl['data'][0];
     if (!songUrl.containsKey('url')) return;
     (await _player).playWithoutList(songUrl['url']);
+    _playingMenu = getMenuIndexStack();
     _curMusicInfo.setId(songId);
+  }
+
+  /// 是否在播放列表
+  bool inPlayingMenu() {
+    if (_playingMenu == null) return false;
+    return getMenuIndexStack() == _playingMenu;
+  }
+
+  /// 获取菜单index栈
+  String getMenuIndexStack() {
+    var menu = '';
+    _window.menuStack.forEach((item) {
+      menu = menu == '' ? item.index.toString() : '${menu}>${item.index.toString()}';
+    });
+    return menu;
   }
 
 }
