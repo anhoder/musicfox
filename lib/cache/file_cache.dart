@@ -14,9 +14,9 @@ class FileCache implements ICache {
   FileCache() {
     var env = Platform.environment;
     if (Platform.isWindows) {
-      _filePath = '${env['USERPROFILE'].toString()}${Platform.pathSeparator}.musicfox.cache';
+      _filePath = '${env['USERPROFILE'].toString()}${Platform.pathSeparator}.musicfox${Platform.pathSeparator}musicfox.cache';
     } else {
-      _filePath = '${env['HOME'].toString()}${Platform.pathSeparator}.musicfox.cache';
+      _filePath = '${env['HOME'].toString()}${Platform.pathSeparator}.musicfox${Platform.pathSeparator}musicfox.cache';
     }
 
     _file = File(_filePath);

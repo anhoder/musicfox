@@ -49,7 +49,7 @@ class DailyRecommendSongs implements IMenuContent{
 
   @override
   Future<List<IMenuContent>> getMenuContent(WindowUI ui) {
-    return Future.value([DailyRecommendSongs()]);
+    return Future.value([]);
   }
 
 }
