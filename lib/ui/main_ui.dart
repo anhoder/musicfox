@@ -23,8 +23,12 @@ final MENU_CONTENTS = <IMenuContent>[
 class MainUI {
   WindowUI _window;
   Player _playerContainer;
-  int _curSongIndex;
   String _playingMenu;
+  Timer _playerTimer;
+  Stopwatch _watch;
+  int _playerUIRow;
+  int _curSongIndex = 0;
+  List _playlist = [];
 
   // from player
   MusicInfo _curMusicInfo; 
@@ -59,6 +63,8 @@ class MainUI {
     _curMusicInfo = MusicInfo();
     _curProgress = MusicProgress();
     _playerStatus = PlayerStatus();
+    _watch = Stopwatch();
+    _playerUIRow = Console.rows - 4;
   }
 
   Future<Player> get _player async {
@@ -71,14 +77,9 @@ class MainUI {
       _playerContainer.listenStatus((status) async {
         _playerStatus.setStatus(status);
         if (!Platform.isWindows && _playerStatus.status == Status.STOPPED) {
-          Timer(Duration(milliseconds: 200), () async {
+          Timer(Duration(milliseconds: 1000), () async {
             if (_playerStatus.status == Status.STOPPED) {
-              List songs = _window.pageData;
-              if (songs == null || _curSongIndex >= songs.length - 1) return;
-              _curSongIndex++;
-              Map songInfo = songs[_curSongIndex];
-              if (!songInfo.containsKey('id')) return;
-              await playSong(songInfo['id']);
+              await nextSong();
             }
           });
         }
@@ -112,6 +113,13 @@ class MainUI {
   /// 初始化
   void init(WindowUI ui) {
     Keyboard.bindKey(KeyName.SPACE).listen(play);
+    Keyboard.bindKey('[').listen((_) => preSong());
+    Keyboard.bindKey(']').listen((_) => nextSong());
+  }
+
+  void displayPlayerUI() {
+    Console.moveCursor(row: _playerUIRow, column: _window.startColumn);
+    Console.write('\r${_playlist[_curSongIndex]['name']}s');
   }
 
   /// 进入菜单
@@ -150,24 +158,60 @@ class MainUI {
 
   /// 空格监听
   void play(_) async {
-    List songs = _window.pageData;
+    var inPlaying = inPlayingMenu();
+    var songs = inPlaying ? _playlist : _window.pageData;
+    
+    var player = (await _player);
     var index = _window.selectIndex;
-    if (songs == null || index > songs.length - 1) return;
+    if (songs == null || index > songs.length - 1) {
+      if (_playerStatus.status == Status.PAUSED) {
+        player.resume();
+        if (_watch != null) _watch.stop();
+      } else {
+        player.pause();
+        if (_watch != null) _watch.start();
+      }
+      return;
+    }
+    
     _curSongIndex = index;
     Map songInfo = songs[_curSongIndex];
     if (!songInfo.containsKey('id')) return;
 
-    var player = (await _player);
     if (inPlayingMenu() && _curMusicInfo.id == songInfo['id']) {
-      if (_playerStatus.status == Status.PAUSED || _playerStatus.status == Status.STOPPED) {
+      if (_playerStatus.status == Status.PAUSED) {
         player.resume();
+        if (_watch != null) _watch.stop();
       } else {
         player.pause();
+        if (_watch != null) _watch.start();
       }
     } else {
+      _playingMenu = getMenuIndexStack();
+      _playlist = songs;
       await playSong(songInfo['id']);
     }
 
+  }
+
+  /// 下一曲
+  Future<void> nextSong() async {
+    var songs = _playlist;
+    if (songs == null || _curSongIndex >= songs.length - 1) return;
+    _curSongIndex++;
+    Map songInfo = songs[_curSongIndex];
+    if (!songInfo.containsKey('id')) return;
+    await playSong(songInfo['id']);
+  }
+
+  /// 上一曲
+  Future<void> preSong() async {
+    var songs = _playlist;
+    if (songs == null || _curSongIndex <= 0) return;
+    _curSongIndex--;
+    Map songInfo = songs[_curSongIndex];
+    if (!songInfo.containsKey('id')) return;
+    await playSong(songInfo['id']);
   }
 
   /// 播放指定音乐
@@ -176,18 +220,21 @@ class MainUI {
     Map songUrl = await songRequest.getSongUrlByWeb(songId);
     songUrl = songUrl['data'][0];
     if (!songUrl.containsKey('url')) return;
+    displayPlayerUI();
     (await _player).playWithoutList(songUrl['url']);
-    _playingMenu = getMenuIndexStack();
     _curMusicInfo.setId(songId);
-    _curMusicInfo.setDuration(Duration(milliseconds: _window.pageData[_curSongIndex]['duration']));
-      Console.moveCursorDown(3);
-    Timer.periodic(Duration(milliseconds: 10), (timer) async {
-      Console.write('\r${timer.tick}');
-      if (timer.tick >= _curMusicInfo.duration.inMilliseconds / 10) {
+    _curMusicInfo.setDuration(Duration(milliseconds: _playlist[_curSongIndex]['duration']));
+    _watch.stop();
+    _watch.reset();
+    _watch.start();
+    if (_playerTimer != null) _playerTimer.cancel();
+    _playerTimer = Timer.periodic(Duration(milliseconds: 100), (timer) async {
+      if (_watch.elapsedMilliseconds >= _curMusicInfo.duration.inMilliseconds) {
         timer.cancel();
+        _watch..stop()..reset();
         if (Platform.isWindows) {
           if (_playerStatus.status == Status.STOPPED) {
-            List songs = _window.pageData;
+            var songs = _playlist;
             if (songs == null || _curSongIndex >= songs.length - 1) return;
             _curSongIndex++;
             Map songInfo = songs[_curSongIndex];

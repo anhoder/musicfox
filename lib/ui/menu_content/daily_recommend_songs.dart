@@ -8,6 +8,9 @@ import 'package:netease_music_request/request.dart';
 
 class DailyRecommendSongs implements IMenuContent{
   @override
+  bool get isPlaylist => true;
+
+  @override
   Future<String> getContent(WindowUI ui) {
     return Future.value(''); 
   }
