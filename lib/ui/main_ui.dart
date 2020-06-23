@@ -129,7 +129,7 @@ class MainUI {
     Console.moveCursor(row: Console.rows - 3, column: _window.startColumn);
     Console.eraseLine();
     var status = _playerStatus.status == Status.PLAYING ? ColorText().setColor(_window.primaryColor).text('♫  ♪ ♫  ♪') : ColorText().gold('_ _ z Z Z');
-    var title = ColorText().setColor(_window.primaryColor).text(_window.menu[_curSongIndex]).toString();
+    var title = ColorText().setColor(_window.primaryColor).text(_playlist[_curSongIndex]['name']).toString();
     Console.write('${status}  ${title}');
 
     // 进度条
