@@ -10,6 +10,7 @@ import 'package:musicfox/exception/response_exception.dart';
 import 'package:musicfox/lang/chinese.dart';
 import 'package:musicfox/ui/menu_content/daily_recommend_songs.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
+import 'package:musicfox/utils/function.dart';
 import 'package:musicfox/utils/music_info.dart';
 import 'package:musicfox/utils/music_progress.dart';
 import 'package:musicfox/utils/player_status.dart';
@@ -25,8 +26,8 @@ class MainUI {
   Player _playerContainer;
   String _playingMenu;
   Timer _playerTimer;
+  RainbowProgress _playerProgress;
   Stopwatch _watch;
-  int _playerUIRow;
   int _curSongIndex = 0;
   List _playlist = [];
 
@@ -65,7 +66,6 @@ class MainUI {
     _curProgress = MusicProgress();
     _playerStatus = PlayerStatus();
     _watch = Stopwatch();
-    _playerUIRow = Console.rows - 4;
   }
 
   Future<Player> get _player async {
@@ -125,12 +125,28 @@ class MainUI {
 
   /// 显示播放器UI
   void displayPlayerUI() {
-    Console.moveCursor(row: _playerUIRow, column: _window.startColumn);
-    Console.write('\r${_playlist[_curSongIndex]['name']}s');
+    // 歌曲名
+    Console.moveCursor(row: Console.rows - 3, column: _window.startColumn);
+    Console.eraseLine();
+    var status = _playerStatus.status == Status.PLAYING ? ColorText().setColor(_window.primaryColor).text('♫  ♪ ♫  ♪') : ColorText().gold('_ _ z Z Z');
+    var title = ColorText().setColor(_window.primaryColor).text(_window.menu[_curSongIndex]).toString();
+    Console.write('${status}  ${title}');
+
+    // 进度条
+    Console.moveCursor(row: Console.rows);
+    if (_curMusicInfo.duration != null && _playerProgress != null) {
+      _playerProgress.update((_watch.elapsed.inSeconds / _curMusicInfo.duration.inSeconds * 100).round());
+    }
+    if (Console.columns > 30 && _curMusicInfo.duration != null) {
+      var curTime = formatTime(_watch.elapsedMilliseconds);
+      var totalTime = formatTime(_curMusicInfo.duration.inMilliseconds);
+      Console.moveCursor(row: Console.rows, column: Console.columns - 12);
+      Console.write(ColorText().setColor(_window.primaryColor).text('${curTime}/${totalTime}').toString());
+    }
   }
 
   /// 进入菜单
-  Future<List<String>> beforeEnterMenu(WindowUI ui) async {
+  Future<dynamic> beforeEnterMenu(WindowUI ui) async {
     try {
       var menuContents = MENU_CONTENTS;
       Iterable stack = ui.menuStack.length > 1 ? ui.menuStack.getRange(0, ui.menuStack.length - 2) : [];
@@ -140,6 +156,7 @@ class MainUI {
           menuContents = await menu.getMenuContent(ui);
         }
       });
+      if (ui.selectIndex > menuContents.length - 1) return false;
       var menus = await menuContents[ui.selectIndex].getMenus(ui);
       if (menus != null && menus.isNotEmpty) return menus;
       var content = await menuContents[ui.selectIndex].getContent(ui);
@@ -159,7 +176,6 @@ class MainUI {
 
   /// 翻页
   Future<List<String>> beforeNextPage(WindowUI ui) async {
-    await Future.delayed(Duration(seconds: 1));
     return Future.value([]);
   }
 
@@ -235,8 +251,20 @@ class MainUI {
     _watch.stop();
     _watch.reset();
     _watch.start();
+
+    // 播放器进度条
+    _playerProgress = RainbowProgress(
+      completeChar: '#',
+      forwardChar: '#',
+      leftDelimiter: '',
+      rightDelimiter: '',
+      showPercent: false,
+      width: Console.columns > 30 ? Console.columns - 14 : Console.columns,
+      rainbow: true);
+    _playerProgress.update(0);
     if (_playerTimer != null) _playerTimer.cancel();
-    _playerTimer = Timer.periodic(Duration(milliseconds: 100), (timer) async {
+    _playerTimer = Timer.periodic(Duration(milliseconds: 500), (timer) async {
+      displayPlayerUI();
       if (_watch.elapsedMilliseconds >= _curMusicInfo.duration.inMilliseconds) {
         timer.cancel();
         _watch..stop()..reset();

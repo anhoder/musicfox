@@ -1,19 +1,19 @@
 enum Status {
   STOPPED,
-  PLAYING,
   PAUSED,
+  PLAYING,
 }
 
 Map<Status, int> STATUS_VALUES = {
   Status.STOPPED: 0,
-  Status.PLAYING: 1,
-  Status.PAUSED: 2
+  Status.PAUSED: 1,
+  Status.PLAYING: 2,
 };
 
 Map<int, Status> VALUE_STATUS = {
   0: Status.STOPPED,
-  1: Status.PLAYING,
-  2: Status.PAUSED
+  1: Status.PAUSED,
+  2: Status.PLAYING,
 };
 
 class PlayerStatus {
