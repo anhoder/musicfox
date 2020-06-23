@@ -57,6 +57,7 @@ class MainUI {
       beforeEnterMenu: beforeEnterMenu,
       beforeNextPage: beforeNextPage,
       init: init,
+      quit: quit,
       lang: Chinese()
     );
     CacheFactory.produce();
@@ -117,6 +118,12 @@ class MainUI {
     Keyboard.bindKey(']').listen((_) => nextSong());
   }
 
+  /// 退出
+  void quit(WindowUI ui) async {
+    (await _player).quit();
+  }
+
+  /// 显示播放器UI
   void displayPlayerUI() {
     Console.moveCursor(row: _playerUIRow, column: _window.startColumn);
     Console.write('\r${_playlist[_curSongIndex]['name']}s');
@@ -216,6 +223,7 @@ class MainUI {
 
   /// 播放指定音乐
   Future<void> playSong(int songId) async {
+    _playerStatus.setStatus(STATUS_VALUES[Status.PLAYING]);
     var songRequest = request.Song();
     Map songUrl = await songRequest.getSongUrlByWeb(songId);
     songUrl = songUrl['data'][0];
