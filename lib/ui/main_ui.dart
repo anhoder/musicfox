@@ -134,7 +134,7 @@ class MainUI {
 
     // 进度条
     Console.moveCursor(row: Console.rows);
-    _playerProgress != null ? _playerProgress.width = Console.rows - 14 : null;
+    _playerProgress != null ? _playerProgress.width = Console.columns - 14 : null;
     if (_curMusicInfo.duration != null && _playerProgress != null) {
       _playerProgress.update((_watch.elapsed.inSeconds / _curMusicInfo.duration.inSeconds * 100).round());
     }
