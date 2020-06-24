@@ -190,10 +190,10 @@ class MainUI {
     if (songs == null || index > songs.length - 1) {
       if (_playerStatus.status == Status.PAUSED) {
         player.resume();
-        if (_watch != null) _watch.stop();
+        if (_watch != null) _watch.start();
       } else {
         player.pause();
-        if (_watch != null) _watch.start();
+        if (_watch != null) _watch.stop();
       }
       return;
     }
@@ -205,10 +205,10 @@ class MainUI {
     if (inPlayingMenu() && _curMusicInfo.id == songInfo['id']) {
       if (_playerStatus.status == Status.PAUSED) {
         player.resume();
-        if (_watch != null) _watch.stop();
+        if (_watch != null) _watch.start();
       } else {
         player.pause();
-        if (_watch != null) _watch.start();
+        if (_watch != null) _watch.stop();
       }
     } else {
       _playingMenu = getMenuIndexStack();
@@ -264,7 +264,7 @@ class MainUI {
       rainbow: true);
     _playerProgress.update(0);
     if (_playerTimer != null) _playerTimer.cancel();
-    _playerTimer = Timer.periodic(Duration(milliseconds: 500), (timer) async {
+    _playerTimer = Timer.periodic(Duration(milliseconds: 100), (timer) async {
       displayPlayerUI();
       if (_watch.elapsedMilliseconds >= _curMusicInfo.duration.inMilliseconds) {
         timer.cancel();
