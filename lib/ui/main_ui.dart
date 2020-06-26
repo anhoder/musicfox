@@ -124,13 +124,23 @@ class MainUI {
   }
 
   /// 显示播放器UI
-  void displayPlayerUI() {
+  void displayPlayerUI([bool changeSong = false]) {
     // 歌曲名
     Console.moveCursor(row: Console.rows - 3, column: _window.startColumn);
-    Console.eraseLine();
-    var status = _playerStatus.status == Status.PLAYING ? ColorText().setColor(_window.primaryColor).text('♫  ♪ ♫  ♪') : ColorText().gold('_ _ z Z Z');
-    var title = ColorText().setColor(_window.primaryColor).text(_playlist[_curSongIndex]['name']).toString();
-    Console.write('${status}  ${title}');
+    var status = _playerStatus.status == Status.PLAYING ? '♫  ♪ ♫  ♪' : '_ _ z Z Z';
+    if (changeSong) {
+      Console.eraseLine();
+      var title = ColorText()
+        .setColor(_window.primaryColor).text('${status}  ${_playlist[_curSongIndex]['name']} ')
+        .gray(getCurSongArtists()).toString();
+      Console.write(title);
+    } else {
+      Console.write('\r');
+      for (var i = 1; i < _window.startColumn; i++) {
+        Console.write(' ');
+      }
+      Console.write(ColorText().setColor(_window.primaryColor).text(status).toString());
+    }
 
     // 进度条
     Console.moveCursor(row: Console.rows);
@@ -144,6 +154,19 @@ class MainUI {
       Console.moveCursor(row: Console.rows, column: Console.columns - 12);
       Console.write(ColorText().setColor(_window.primaryColor).text('${curTime}/${totalTime}').toString());
     }
+  }
+
+  /// 获取当前歌曲的歌手
+  String getCurSongArtists() {
+    var artistName = '';
+    if (_playlist[_curSongIndex].containsKey('artists')) {
+        _playlist[_curSongIndex]['artists'].forEach((artist) {
+          if (artist.containsKey('name')) {
+            artistName = artistName == '' ? artist['name'] : '${artistName},${artist['name']}';
+          }
+        });
+    }
+    return '<${artistName}>';
   }
 
   /// 进入菜单
@@ -245,7 +268,7 @@ class MainUI {
     Map songUrl = await songRequest.getSongUrlByWeb(songId);
     songUrl = songUrl['data'][0];
     if (!songUrl.containsKey('url')) return;
-    displayPlayerUI();
+    displayPlayerUI(true);
     (await _player).playWithoutList(songUrl['url']);
     _curMusicInfo.setId(songId);
     _curMusicInfo.setDuration(Duration(milliseconds: _playlist[_curSongIndex]['duration']));
