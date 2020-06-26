@@ -130,17 +130,15 @@ class MainUI {
     var status = _playerStatus.status == Status.PLAYING ? '♫  ♪ ♫  ♪' : '_ _ z Z Z';
     if (changeSong) {
       Console.eraseLine();
-      var title = ColorText()
-        .setColor(_window.primaryColor).text('${status}  ${_playlist[_curSongIndex]['name']} ')
-        .gray(getCurSongArtists()).toString();
-      Console.write(title);
     } else {
       Console.write('\r');
       for (var i = 1; i < _window.startColumn; i++) {
         Console.write(' ');
       }
-      Console.write(ColorText().setColor(_window.primaryColor).text(status).toString());
     }
+    Console.write(ColorText()
+      .setColor(_window.primaryColor).text('${status}  ${_playlist[_curSongIndex]['name']} ')
+      .gray(getCurSongArtists()).toString());
 
     // 进度条
     Console.moveCursor(row: Console.rows);
@@ -261,14 +259,32 @@ class MainUI {
     await playSong(songInfo['id']);
   }
 
+  /// 定位到相应的播放歌曲
+  void locateSong() {
+    if (!inPlayingMenu()) return;
+    var pageDelta = (_curSongIndex / _window.menuPageSize).floor() - (_window.menuPage - 1);
+    if (pageDelta > 0) {
+      for (var i = 0; i < pageDelta; i++) {
+        _window.nextPage();
+      }
+    } else if (pageDelta < 0) {
+      for (var i = 0; i > pageDelta; i--) {
+        _window.prePage ();
+      }
+    }
+    _window.selectIndex = _curSongIndex;
+    _window.displayList();
+  }
+
   /// 播放指定音乐
   Future<void> playSong(int songId) async {
     _playerStatus.setStatus(STATUS_VALUES[Status.PLAYING]);
+    locateSong();
+    displayPlayerUI(true);
     var songRequest = request.Song();
     Map songUrl = await songRequest.getSongUrlByWeb(songId);
     songUrl = songUrl['data'][0];
     if (!songUrl.containsKey('url')) return;
-    displayPlayerUI(true);
     (await _player).playWithoutList(songUrl['url']);
     _curMusicInfo.setId(songId);
     _curMusicInfo.setDuration(Duration(milliseconds: _playlist[_curSongIndex]['duration']));

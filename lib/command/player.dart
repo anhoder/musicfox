@@ -32,8 +32,12 @@ class Player extends ICmd {
       return false;
     } on SocketException {
       _ui.error('网络错误，请检查网络~');
+      return false;
     } on ResponseException catch (e) {
       _ui.error(e.toString());
+      return false;
+    } catch (e) {
+      rethrow;
     }
   }
 }
