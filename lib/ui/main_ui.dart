@@ -30,6 +30,7 @@ class MainUI {
   Stopwatch _watch;
   int _curSongIndex = 0;
   List _playlist = [];
+  NotifierProxy _notifier;
 
   // from player
   MusicInfo _curMusicInfo; 
@@ -66,6 +67,7 @@ class MainUI {
     _curProgress = MusicProgress();
     _playerStatus = PlayerStatus();
     _watch = Stopwatch();
+    _notifier = NotifierProxy(mac: [TerminalNotifier(), AppleScriptNotifier()], linux: [NotifySendNotifier()]);
     var cache = CacheFactory.produce();
     Map progress = cache.get('progress');
     if (progress == null) return;
@@ -287,11 +289,38 @@ class MainUI {
     _window.displayList();
   }
 
+  /// 发送通知
+  void notify() {
+    if (_curSongIndex > _playlist.length - 1 || !_playlist[_curSongIndex].containsKey('name')) return;
+    var songName = _playlist[_curSongIndex]['name'];
+    var artist = getCurSongArtists();
+    String contentImage;
+    if (_playlist[_curSongIndex].containsKey('album')) {
+      if (_playlist[_curSongIndex]['album'].containsKey('blurPicUrl') && _playlist[_curSongIndex]['album']['blurPicUrl'] != '') {
+        contentImage = _playlist[_curSongIndex]['album']['blurPicUrl'];
+      } else if (_playlist[_curSongIndex]['album'].containsKey('picUrl') && _playlist[_curSongIndex]['album']['picUrl'] != '') {
+        contentImage = _playlist[_curSongIndex]['album']['picUrl'];
+      }
+    }
+    _notifier.send(
+      '${songName} - ${artist}', 
+      title: 'MusicFox', 
+      subtitle: '正在播放: ${songName}', 
+      groupID: 'musicfox', 
+      openURL: 'https://github.com/AlanAlbert/musicfox',
+      appIcon: '',
+      contentImage: contentImage);
+  }
+
   /// 播放指定音乐
   Future<void> playSong(int songId) async {
     _playerStatus.setStatus(STATUS_VALUES[Status.PLAYING]);
     locateSong();
     displayPlayerUI(true);
+    notify();
+    _watch.stop();
+    _watch.reset();
+    _watch.start();
     var songRequest = request.Song();
     Map songUrl = await songRequest.getSongUrlByWeb(songId);
     songUrl = songUrl['data'][0];
@@ -299,9 +328,6 @@ class MainUI {
     (await _player).playWithoutList(songUrl['url']);
     _curMusicInfo.setId(songId);
     _curMusicInfo.setDuration(Duration(milliseconds: _playlist[_curSongIndex]['duration']));
-    _watch.stop();
-    _watch.reset();
-    _watch.start();
     var cache = CacheFactory.produce();
     cache.set('progress', {
       'curSongIndex': _curSongIndex,
