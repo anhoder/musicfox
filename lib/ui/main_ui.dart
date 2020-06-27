@@ -73,6 +73,7 @@ class MainUI {
     if (progress == null) return;
     _curSongIndex = progress.containsKey('curSongIndex') ? progress['curSongIndex'] : 0;
     _playlist = progress.containsKey('playlist') ? progress['playlist'] : [];
+    _playingMenu = progress.containsKey('playingMenu') ? progress['playingMenu'] : null;
   }
 
   Future<Player> get _player async {
@@ -181,15 +182,16 @@ class MainUI {
   Future<dynamic> beforeEnterMenu(WindowUI ui) async {
     try {
       var menuContents = MENU_CONTENTS;
-      Iterable stack = ui.menuStack.length > 1 ? ui.menuStack.getRange(0, ui.menuStack.length - 2) : [];
+      var lastItem = ui.menuStack.first;
+      if (lastItem.index > menuContents.length - 1) return;
+      var menu = menuContents[lastItem.index];
+
+      var stack = ui.menuStack.length > 1 ? ui.menuStack.sublist(1) : [];
       await stack.forEach((menuItem) async {
-        var menu = menuContents[menuItem.index];
-        if (menu is IMenuContent) {
-          menuContents = await menu.getMenuContent(ui);
-        }
+        menu = await menu.getMenuContent(ui, menuItem.index);
       });
-      if (ui.selectIndex > menuContents.length - 1) return false;
-      var menus = await menuContents[ui.selectIndex].getMenus(ui);
+      if (menu == null) return;
+      var menus = await menu.getMenus(ui);
       if (menus != null && menus.isNotEmpty) return menus;
       var content = await menuContents[ui.selectIndex].getContent(ui);
       var row = ui.startRow;
@@ -236,7 +238,7 @@ class MainUI {
     Map songInfo = songs[_curSongIndex];
     if (!songInfo.containsKey('id')) return;
 
-    if (inPlayingMenu() && _curMusicInfo.id == songInfo['id']) {
+    if (inPlaying && _curMusicInfo.id == songInfo['id']) {
       if (_playerStatus.status == Status.PAUSED) {
         player.resume();
         if (_watch != null) _watch.start();
@@ -331,7 +333,8 @@ class MainUI {
     var cache = CacheFactory.produce();
     cache.set('progress', {
       'curSongIndex': _curSongIndex,
-      'playlist': _playlist
+      'playlist': _playlist,
+      'playingMenu': _playingMenu
     });
 
     // 播放器进度条

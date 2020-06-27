@@ -8,5 +8,5 @@ abstract class IMenuContent {
 
   Future<String> getContent(WindowUI ui);
 
-  Future<List<IMenuContent>> getMenuContent(WindowUI ui);
+  Future<IMenuContent> getMenuContent(WindowUI ui, int index);
 }
