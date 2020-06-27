@@ -55,17 +55,22 @@ class MainUI {
         '云盘',
       ],
       defaultMenuTitle: '网易云音乐',
+      enterMain: enterMain,
       beforeEnterMenu: beforeEnterMenu,
       beforeNextPage: beforeNextPage,
       init: init,
       quit: quit,
       lang: Chinese()
     );
-    CacheFactory.produce();
     _curMusicInfo = MusicInfo();
     _curProgress = MusicProgress();
     _playerStatus = PlayerStatus();
     _watch = Stopwatch();
+    var cache = CacheFactory.produce();
+    Map progress = cache.get('progress');
+    if (progress == null) return;
+    _curSongIndex = progress.containsKey('curSongIndex') ? progress['curSongIndex'] : 0;
+    _playlist = progress.containsKey('playlist') ? progress['playlist'] : [];
   }
 
   Future<Player> get _player async {
@@ -122,6 +127,9 @@ class MainUI {
   void quit(WindowUI ui) async {
     (await _player).quit();
   }
+
+  /// 显示完欢迎界面后
+  void enterMain(WindowUI ui) => displayPlayerUI();
 
   /// 显示播放器UI
   void displayPlayerUI([bool changeSong = false]) {
@@ -212,9 +220,12 @@ class MainUI {
       if (_playerStatus.status == Status.PAUSED) {
         player.resume();
         if (_watch != null) _watch.start();
-      } else {
+      } else if (_playerStatus.status == Status.PLAYING) {
         player.pause();
         if (_watch != null) _watch.stop();
+      } else {
+        if (_curSongIndex > _playlist.length - 1 || !_playlist[_curSongIndex].containsKey('id')) return;
+        await playSong(_playlist[_curSongIndex]['id']);
       }
       return;
     }
@@ -291,6 +302,11 @@ class MainUI {
     _watch.stop();
     _watch.reset();
     _watch.start();
+    var cache = CacheFactory.produce();
+    cache.set('progress', {
+      'curSongIndex': _curSongIndex,
+      'playlist': _playlist
+    });
 
     // 播放器进度条
     _playerProgress = RainbowProgress(
