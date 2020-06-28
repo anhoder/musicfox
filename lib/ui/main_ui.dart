@@ -8,6 +8,7 @@ import 'package:mp3_player/audio_player.dart';
 import 'package:musicfox/cache/i_cache.dart';
 import 'package:musicfox/exception/response_exception.dart';
 import 'package:musicfox/lang/chinese.dart';
+import 'package:musicfox/ui/menu_content/daily_recommand_playlist.dart';
 import 'package:musicfox/ui/menu_content/daily_recommend_songs.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/utils/function.dart';
@@ -18,7 +19,7 @@ import 'package:netease_music_request/request.dart' as request;
 
 final MENU_CONTENTS = <IMenuContent>[
   DailyRecommendSongs(),
-
+  DailyRecommandPlaylist(),
 ];
 
 class MainUI {
@@ -182,19 +183,11 @@ class MainUI {
   /// 进入菜单
   Future<dynamic> beforeEnterMenu(WindowUI ui) async {
     try {
-      var menuContents = MENU_CONTENTS;
-      var lastItem = ui.menuStack.first;
-      if (lastItem.index > menuContents.length - 1) return;
-      var menu = menuContents[lastItem.index];
-
-      var stack = ui.menuStack.length > 1 ? ui.menuStack.sublist(1) : [];
-      await stack.forEach((menuItem) async {
-        menu = await menu.getMenuContent(ui, menuItem.index);
-      });
+      var menu = await getCurMenuContent(ui);
       if (menu == null) return;
       var menus = await menu.getMenus(ui);
       if (menus != null && menus.isNotEmpty) return menus;
-      var content = await menuContents[ui.selectIndex].getContent(ui);
+      var content = await menu.getContent(ui);
       var row = ui.startRow;
       content.split('\n').forEach((line) {
         Console.moveCursor(row: row, column: ui.startColumn);
@@ -212,6 +205,20 @@ class MainUI {
   /// 翻页
   Future<List<String>> beforeNextPage(WindowUI ui) async {
     return Future.value([]);
+  }
+
+  /// 获取当前菜单
+  Future<IMenuContent> getCurMenuContent(WindowUI ui) async {
+    var lastItem = ui.menuStack.first;
+    if (lastItem.index > MENU_CONTENTS.length - 1) return null;
+    var menu = MENU_CONTENTS[lastItem.index];
+
+    var stack = ui.menuStack.length > 1 ? ui.menuStack.sublist(1) : [];
+    await stack.forEach((menuItem) async {
+      menu = await menu.getMenuContent(ui, menuItem.index);
+    });
+
+    return menu;
   }
 
   /// 空格监听

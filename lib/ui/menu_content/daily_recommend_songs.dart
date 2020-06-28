@@ -1,14 +1,11 @@
 import 'package:colorful_cmd/component.dart';
 import 'package:colorful_cmd/utils.dart';
-import 'package:musicfox/cache/i_cache.dart';
-import 'package:musicfox/ui/login.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
 
 class DailyRecommendSongs implements IMenuContent{
-  @override
-  bool get isPlaylist => true;
+  List _songs;
 
   @override
   Future<String> getContent(WindowUI ui) {
@@ -17,19 +14,19 @@ class DailyRecommendSongs implements IMenuContent{
 
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
-    var cache = CacheFactory.produce();
-    var user = cache.get('user');
-    if (user == null) await login(ui);
-    
-    var song = Song();
-    Map response = await song.getRecommendSongs();
-    response = validateResponse(response);
+    if (_songs == null || _songs.isEmpty) {
+      await checkLogin(ui);
+      
+      var song = Song();
+      Map response = await song.getRecommendSongs();
+      response = validateResponse(response);
 
-    List list = response.containsKey('recommend') ? response['recommend'] : [];
-    ui.pageData = list;
+      _songs = response.containsKey('recommend') ? response['recommend'] : [];
+    }
+    ui.pageData = _songs;
 
     var res = <String>[];
-    list.forEach((item) {
+    _songs.forEach((item) {
       var name = '';
       if (item.containsKey('name')) {
         var artistName = '';

@@ -1,4 +1,14 @@
+import 'package:colorful_cmd/component.dart';
+import 'package:musicfox/cache/i_cache.dart';
 import 'package:musicfox/exception/response_exception.dart';
+import 'package:musicfox/ui/login.dart';
+
+/// 检查是否登录，未登录调起登录
+Future<void> checkLogin(WindowUI ui) async {
+  var cache = CacheFactory.produce();
+  var user = cache.get('user');
+  if (user == null) await login(ui);
+}
 
 /// 验证响应
 Map validateResponse(Map response) {
