@@ -121,9 +121,9 @@ class MainUI {
 
   /// 初始化
   void init(WindowUI ui) {
-    Keyboard.bindKey(KeyName.SPACE).listen(play);
-    Keyboard.bindKey('[').listen((_) => preSong());
-    Keyboard.bindKey(']').listen((_) => nextSong());
+    Keys.bindKey(KeyName.SPACE).listen(play);
+    Keys.bindKey('[').listen((_) => preSong());
+    Keys.bindKey(']').listen((_) => nextSong());
   }
 
   /// 退出
