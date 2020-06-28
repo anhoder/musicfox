@@ -136,6 +136,7 @@ class MainUI {
 
   /// 显示播放器UI
   void displayPlayerUI([bool changeSong = false]) {
+    if (_playlist == null || _playlist.isEmpty || _curSongIndex == null) return;
     // 歌曲名
     Console.moveCursor(row: Console.rows - 3, column: _window.startColumn);
     var status = _playerStatus.status == Status.PLAYING ? '♫  ♪ ♫  ♪' : '_ _ z Z Z';
