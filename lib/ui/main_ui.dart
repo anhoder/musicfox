@@ -230,9 +230,11 @@ class MainUI {
     var index = _window.selectIndex;
     if (songs == null || index > songs.length - 1) {
       if (_playerStatus.status == Status.PAUSED) {
+        if (Platform.isWindows) _playerStatus.setStatus(STATUS_VALUES[Status.PLAYING]);
         player.resume();
         if (_watch != null) _watch.start();
       } else if (_playerStatus.status == Status.PLAYING) {
+        if (Platform.isWindows) _playerStatus.setStatus(STATUS_VALUES[Status.PAUSED]);
         player.pause();
         if (_watch != null) _watch.stop();
       } else {
@@ -362,14 +364,7 @@ class MainUI {
         timer.cancel();
         _watch..stop()..reset();
         if (Platform.isWindows) {
-          if (_playerStatus.status == Status.STOPPED) {
-            var songs = _playlist;
-            if (songs == null || _curSongIndex >= songs.length - 1) return;
-            _curSongIndex++;
-            Map songInfo = songs[_curSongIndex];
-            if (!songInfo.containsKey('id')) return;
-            await playSong(songInfo['id']);
-          }
+          await nextSong();
         }
       }
     });
