@@ -8,6 +8,9 @@ class DailyRecommendSongs implements IMenuContent{
   List _songs;
 
   @override
+  bool get isPlayable => true;
+
+  @override
   Future<String> getContent(WindowUI ui) {
     return Future.value(''); 
   }

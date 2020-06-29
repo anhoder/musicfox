@@ -142,7 +142,11 @@ class MainUI {
     Console.moveCursor(row: Console.rows - 3, column: _window.startColumn);
     var status = _playerStatus.status == Status.PLAYING ? '♫  ♪ ♫  ♪' : '_ _ z Z Z';
     if (changeSong) {
-      Console.eraseLine();
+      for (var i = 3; i > 0; i--) {
+        Console.eraseLine(2); 
+        Console.moveCursorDown();
+      }
+      Console.moveCursorUp(3);
     } else {
       Console.write('\r');
       for (var i = 1; i < _window.startColumn; i++) {
@@ -172,6 +176,12 @@ class MainUI {
     var artistName = '';
     if (_playlist[_curSongIndex].containsKey('artists')) {
         _playlist[_curSongIndex]['artists'].forEach((artist) {
+          if (artist.containsKey('name')) {
+            artistName = artistName == '' ? artist['name'] : '${artistName},${artist['name']}';
+          }
+        });
+    } else if (_playlist[_curSongIndex].containsKey('ar')) {
+        _playlist[_curSongIndex]['ar'].forEach((artist) {
           if (artist.containsKey('name')) {
             artistName = artistName == '' ? artist['name'] : '${artistName},${artist['name']}';
           }
@@ -209,6 +219,7 @@ class MainUI {
 
   /// 获取当前菜单
   Future<IMenuContent> getCurMenuContent(WindowUI ui) async {
+    if (ui.menuStack == null || ui.menuStack.isEmpty) return null;
     var lastItem = ui.menuStack.first;
     if (lastItem.index > MENU_CONTENTS.length - 1) return null;
     var menu = MENU_CONTENTS[lastItem.index];
@@ -228,7 +239,8 @@ class MainUI {
     
     var player = (await _player);
     var index = _window.selectIndex;
-    if (songs == null || index > songs.length - 1) {
+    var menu = await getCurMenuContent(_window);
+    if (menu == null || !menu.isPlayable || songs == null || index > songs.length - 1) {
       if (_playerStatus.status == Status.PAUSED) {
         player.resume();
         if (_watch != null) _watch.start();
@@ -311,6 +323,12 @@ class MainUI {
       } else if (_playlist[_curSongIndex]['album'].containsKey('picUrl') && _playlist[_curSongIndex]['album']['picUrl'] != '') {
         contentImage = _playlist[_curSongIndex]['album']['picUrl'];
       }
+    } else if (_playlist[_curSongIndex].containsKey('al')) {
+      if (_playlist[_curSongIndex]['al'].containsKey('blurPicUrl') && _playlist[_curSongIndex]['al']['blurPicUrl'] != '') {
+        contentImage = _playlist[_curSongIndex]['al']['blurPicUrl'];
+      } else if (_playlist[_curSongIndex]['al'].containsKey('picUrl') && _playlist[_curSongIndex]['al']['picUrl'] != '') {
+        contentImage = _playlist[_curSongIndex]['al']['picUrl'];
+      }
     }
     var cache = CacheFactory.produce();
     Map user = cache.get('user');
@@ -343,7 +361,13 @@ class MainUI {
     if (!songUrl.containsKey('url')) return;
     (await _player).playWithoutList(songUrl['url']);
     _curMusicInfo.setId(songId);
-    _curMusicInfo.setDuration(Duration(milliseconds: _playlist[_curSongIndex]['duration']));
+    var duration = 0;
+    if (_playlist[_curSongIndex].containsKey('duration')) {
+      duration = _playlist[_curSongIndex]['duration'];
+    } else if (_playlist[_curSongIndex].containsKey('dt')) {
+      duration = _playlist[_curSongIndex]['dt'];
+    }
+    _curMusicInfo.setDuration(Duration(milliseconds: duration));
     var cache = CacheFactory.produce();
     cache.set('progress', {
       'curSongIndex': _curSongIndex,

@@ -7,4 +7,6 @@ abstract class IMenuContent {
   Future<String> getContent(WindowUI ui);
 
   Future<IMenuContent> getMenuContent(WindowUI ui, int index);
+
+  bool get isPlayable;
 }

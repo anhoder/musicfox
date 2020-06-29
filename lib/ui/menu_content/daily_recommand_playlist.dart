@@ -8,6 +8,9 @@ class DailyRecommandPlaylist implements IMenuContent {
   List _playlist;
 
   @override
+  bool get isPlayable => false;
+
+  @override
   Future<String> getContent(WindowUI ui) {
     return Future.value('');
   }
