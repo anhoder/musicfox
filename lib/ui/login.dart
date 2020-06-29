@@ -55,6 +55,7 @@ Future<void> login(WindowUI ui) async {
   await cache.set('user', {
     'userId': response['profile']['userId'],
     'nickname': response['profile']['nickname'],
+    'avatar': response['profile']['avatarUrl'],
     'token': response['token']
   });
 

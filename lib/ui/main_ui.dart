@@ -312,13 +312,19 @@ class MainUI {
         contentImage = _playlist[_curSongIndex]['album']['picUrl'];
       }
     }
+    var cache = CacheFactory.produce();
+    Map user = cache.get('user');
+    var avatar = '';
+    if (user != null && user.containsKey('avatar')) {
+      avatar = user['avatar'];
+    }
     _notifier.send(
       '${songName} - ${artist}', 
       title: 'MusicFox', 
       subtitle: '正在播放: ${songName}', 
       groupID: 'musicfox', 
       openURL: 'https://github.com/AlanAlbert/musicfox',
-      appIcon: '',
+      appIcon: avatar,
       contentImage: contentImage);
   }
 
