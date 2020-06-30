@@ -8,9 +8,10 @@ class DailyRecommendSongs implements IMenuContent{
   List _songs;
 
   @override
-  Future<String> getContent(WindowUI ui) {
-    return Future.value(''); 
-  }
+  bool get isPlayable => true;
+
+  @override
+  Future<String> getContent(WindowUI ui) => Future.value(''); 
 
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
@@ -48,8 +49,9 @@ class DailyRecommendSongs implements IMenuContent{
   }
 
   @override
-  Future<IMenuContent> getMenuContent(WindowUI ui, int index) {
-    return Future.value();
-  }
+  Future<IMenuContent> getMenuContent(WindowUI ui, int index) => null;
+
+  @override
+  Future<List<String>> bottomOut(WindowUI ui) => null;
 
 }

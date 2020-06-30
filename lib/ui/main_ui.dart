@@ -11,6 +11,7 @@ import 'package:musicfox/lang/chinese.dart';
 import 'package:musicfox/ui/menu_content/daily_recommand_playlist.dart';
 import 'package:musicfox/ui/menu_content/daily_recommend_songs.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
+import 'package:musicfox/ui/menu_content/user_playlists.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:musicfox/utils/music_info.dart';
 import 'package:musicfox/utils/music_progress.dart';
@@ -20,6 +21,7 @@ import 'package:netease_music_request/request.dart' as request;
 final MENU_CONTENTS = <IMenuContent>[
   DailyRecommendSongs(),
   DailyRecommandPlaylist(),
+  UserPlaylists()
 ];
 
 class MainUI {
@@ -60,6 +62,7 @@ class MainUI {
       enterMain: enterMain,
       beforeEnterMenu: beforeEnterMenu,
       beforeNextPage: beforeNextPage,
+      bottomOut: bottomOut,
       init: init,
       quit: quit,
       lang: Chinese()
@@ -86,6 +89,7 @@ class MainUI {
       _playerContainer.listenProgress((progress) => _curProgress.setValue(progress['cur'], progress['left']));
       _playerContainer.listenStatus((status) async {
         _playerStatus.setStatus(status);
+        displayPlayerUI();
         if (!Platform.isWindows && _playerStatus.status == Status.STOPPED) {
           Timer(Duration(milliseconds: 1000), () async {
             if (_playerStatus.status == Status.STOPPED) {
@@ -142,7 +146,11 @@ class MainUI {
     Console.moveCursor(row: Console.rows - 3, column: _window.startColumn);
     var status = _playerStatus.status == Status.PLAYING ? '♫  ♪ ♫  ♪' : '_ _ z Z Z';
     if (changeSong) {
-      Console.eraseLine();
+      for (var i = 3; i > 0; i--) {
+        Console.eraseLine(2); 
+        Console.moveCursorDown();
+      }
+      Console.moveCursorUp(3);
     } else {
       Console.write('\r');
       for (var i = 1; i < _window.startColumn; i++) {
@@ -172,6 +180,12 @@ class MainUI {
     var artistName = '';
     if (_playlist[_curSongIndex].containsKey('artists')) {
         _playlist[_curSongIndex]['artists'].forEach((artist) {
+          if (artist.containsKey('name')) {
+            artistName = artistName == '' ? artist['name'] : '${artistName},${artist['name']}';
+          }
+        });
+    } else if (_playlist[_curSongIndex].containsKey('ar')) {
+        _playlist[_curSongIndex]['ar'].forEach((artist) {
           if (artist.containsKey('name')) {
             artistName = artistName == '' ? artist['name'] : '${artistName},${artist['name']}';
           }
@@ -209,6 +223,7 @@ class MainUI {
 
   /// 获取当前菜单
   Future<IMenuContent> getCurMenuContent(WindowUI ui) async {
+    if (ui.menuStack == null || ui.menuStack.isEmpty) return null;
     var lastItem = ui.menuStack.first;
     if (lastItem.index > MENU_CONTENTS.length - 1) return null;
     var menu = MENU_CONTENTS[lastItem.index];
@@ -221,6 +236,21 @@ class MainUI {
     return menu;
   }
 
+  /// 到底回调
+  Future<List<String>> bottomOut(WindowUI ui) async {
+    try {
+      var menu = await getCurMenuContent(ui);
+      if (menu == null) return [];
+      var menus = await menu.bottomOut(ui);
+      if (menus != null && menus.isNotEmpty) return menus;
+    } on SocketException {
+      error('网络错误~, 请稍后重试');
+    } on ResponseException catch (e) {
+      error(e.toString());
+    }
+    return [];
+  }
+
   /// 空格监听
   void play(_) async {
     var inPlaying = inPlayingMenu();
@@ -228,15 +258,18 @@ class MainUI {
     
     var player = (await _player);
     var index = _window.selectIndex;
-    if (songs == null || index > songs.length - 1) {
+    var menu = await getCurMenuContent(_window);
+    if (menu == null || !menu.isPlayable || songs == null || index > songs.length - 1) {
       if (_playerStatus.status == Status.PAUSED) {
         if (Platform.isWindows) _playerStatus.setStatus(STATUS_VALUES[Status.PLAYING]);
         player.resume();
         if (_watch != null) _watch.start();
+        if (Platform.isWindows) _playerStatus.setStatus(STATUS_VALUES[Status.PLAYING]);
       } else if (_playerStatus.status == Status.PLAYING) {
         if (Platform.isWindows) _playerStatus.setStatus(STATUS_VALUES[Status.PAUSED]);
         player.pause();
         if (_watch != null) _watch.stop();
+        if (Platform.isWindows) _playerStatus.setStatus(STATUS_VALUES[Status.PAUSED]);
       } else {
         if (_curSongIndex > _playlist.length - 1 || !_playlist[_curSongIndex].containsKey('id')) return;
         await playSong(_playlist[_curSongIndex]['id']);
@@ -252,9 +285,11 @@ class MainUI {
       if (_playerStatus.status == Status.PAUSED) {
         player.resume();
         if (_watch != null) _watch.start();
+        if (Platform.isWindows) _playerStatus.setStatus(STATUS_VALUES[Status.PLAYING]);
       } else {
         player.pause();
         if (_watch != null) _watch.stop();
+        if (Platform.isWindows) _playerStatus.setStatus(STATUS_VALUES[Status.PAUSED]);
       }
     } else {
       _playingMenu = getMenuIndexStack();
@@ -313,6 +348,18 @@ class MainUI {
       } else if (_playlist[_curSongIndex]['album'].containsKey('picUrl') && _playlist[_curSongIndex]['album']['picUrl'] != '') {
         contentImage = _playlist[_curSongIndex]['album']['picUrl'];
       }
+    } else if (_playlist[_curSongIndex].containsKey('al')) {
+      if (_playlist[_curSongIndex]['al'].containsKey('blurPicUrl') && _playlist[_curSongIndex]['al']['blurPicUrl'] != '') {
+        contentImage = _playlist[_curSongIndex]['al']['blurPicUrl'];
+      } else if (_playlist[_curSongIndex]['al'].containsKey('picUrl') && _playlist[_curSongIndex]['al']['picUrl'] != '') {
+        contentImage = _playlist[_curSongIndex]['al']['picUrl'];
+      }
+    }
+    var cache = CacheFactory.produce();
+    Map user = cache.get('user');
+    var avatar = '';
+    if (user != null && user.containsKey('avatar')) {
+      avatar = user['avatar'];
     }
     _notifier.send(
       '${songName} - ${artist}', 
@@ -320,7 +367,7 @@ class MainUI {
       subtitle: '正在播放: ${songName}', 
       groupID: 'musicfox', 
       openURL: 'https://github.com/AlanAlbert/musicfox',
-      appIcon: '',
+      appIcon: avatar,
       contentImage: contentImage);
   }
 
@@ -339,7 +386,13 @@ class MainUI {
     if (!songUrl.containsKey('url')) return;
     (await _player).playWithoutList(songUrl['url']);
     _curMusicInfo.setId(songId);
-    _curMusicInfo.setDuration(Duration(milliseconds: _playlist[_curSongIndex]['duration']));
+    var duration = 0;
+    if (_playlist[_curSongIndex].containsKey('duration')) {
+      duration = _playlist[_curSongIndex]['duration'];
+    } else if (_playlist[_curSongIndex].containsKey('dt')) {
+      duration = _playlist[_curSongIndex]['dt'];
+    }
+    _curMusicInfo.setDuration(Duration(milliseconds: duration));
     var cache = CacheFactory.produce();
     cache.set('progress', {
       'curSongIndex': _curSongIndex,
