@@ -21,7 +21,7 @@ class PlaylistSongs implements IMenuContent {
   Future<String> getContent(WindowUI ui) => Future.value('');
 
   @override
-  Future<IMenuContent> getMenuContent(WindowUI ui, int index) => Future.value();
+  Future<IMenuContent> getMenuContent(WindowUI ui, int index) => null;
 
   @override
   Future<List<String>> getMenus(WindowUI ui) async {

@@ -228,11 +228,12 @@ class MainUI {
     if (lastItem.index > MENU_CONTENTS.length - 1) return null;
     var menu = MENU_CONTENTS[lastItem.index];
 
-    var stack = ui.menuStack.length > 1 ? ui.menuStack.sublist(1) : [];
-    await stack.forEach((menuItem) async {
-      menu = await menu.getMenuContent(ui, menuItem.index);
-    });
-
+    if (ui.menuStack.length > 1) {
+      for (var i = 1; i < ui.menuStack.length - 1; i++) {
+        menu = await menu.getMenuContent(ui, ui.menuStack[i].index);
+      }
+      menu = await menu.getMenuContent(ui, ui.selectIndex);
+    }
     return menu;
   }
 
