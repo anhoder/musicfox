@@ -89,6 +89,7 @@ class MainUI {
       _playerContainer.listenProgress((progress) => _curProgress.setValue(progress['cur'], progress['left']));
       _playerContainer.listenStatus((status) async {
         _playerStatus.setStatus(status);
+        displayPlayerUI();
         if (!Platform.isWindows && _playerStatus.status == Status.STOPPED) {
           Timer(Duration(milliseconds: 1000), () async {
             if (_playerStatus.status == Status.STOPPED) {
