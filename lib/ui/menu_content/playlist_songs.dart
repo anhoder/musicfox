@@ -18,14 +18,10 @@ class PlaylistSongs implements IMenuContent {
   }
 
   @override
-  Future<String> getContent(WindowUI ui) {
-    return Future.value('');
-  }
+  Future<String> getContent(WindowUI ui) => Future.value('');
 
   @override
-  Future<IMenuContent> getMenuContent(WindowUI ui, int index) {
-    return Future.value();
-  }
+  Future<IMenuContent> getMenuContent(WindowUI ui, int index) => Future.value();
 
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
@@ -69,5 +65,8 @@ class PlaylistSongs implements IMenuContent {
 
     return Future.value(res);
   }
+
+  @override
+  Future<List<String>> bottomOut(WindowUI ui) => null;
   
 }

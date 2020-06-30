@@ -11,6 +11,7 @@ import 'package:musicfox/lang/chinese.dart';
 import 'package:musicfox/ui/menu_content/daily_recommand_playlist.dart';
 import 'package:musicfox/ui/menu_content/daily_recommend_songs.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
+import 'package:musicfox/ui/menu_content/user_playlists.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:musicfox/utils/music_info.dart';
 import 'package:musicfox/utils/music_progress.dart';
@@ -20,6 +21,7 @@ import 'package:netease_music_request/request.dart' as request;
 final MENU_CONTENTS = <IMenuContent>[
   DailyRecommendSongs(),
   DailyRecommandPlaylist(),
+  UserPlaylists()
 ];
 
 class MainUI {
@@ -60,6 +62,7 @@ class MainUI {
       enterMain: enterMain,
       beforeEnterMenu: beforeEnterMenu,
       beforeNextPage: beforeNextPage,
+      bottomOut: bottomOut,
       init: init,
       quit: quit,
       lang: Chinese()
@@ -232,6 +235,21 @@ class MainUI {
     return menu;
   }
 
+  /// 到底回调
+  Future<List<String>> bottomOut(WindowUI ui) async {
+    try {
+      var menu = await getCurMenuContent(ui);
+      if (menu == null) return [];
+      var menus = await menu.bottomOut(ui);
+      if (menus != null && menus.isNotEmpty) return menus;
+    } on SocketException {
+      error('网络错误~, 请稍后重试');
+    } on ResponseException catch (e) {
+      error(e.toString());
+    }
+    return [];
+  }
+
   /// 空格监听
   void play(_) async {
     var inPlaying = inPlayingMenu();
@@ -244,9 +262,11 @@ class MainUI {
       if (_playerStatus.status == Status.PAUSED) {
         player.resume();
         if (_watch != null) _watch.start();
+        if (Platform.isWindows) _playerStatus.setStatus(STATUS_VALUES[Status.PLAYING]);
       } else if (_playerStatus.status == Status.PLAYING) {
         player.pause();
         if (_watch != null) _watch.stop();
+        if (Platform.isWindows) _playerStatus.setStatus(STATUS_VALUES[Status.PAUSED]);
       } else {
         if (_curSongIndex > _playlist.length - 1 || !_playlist[_curSongIndex].containsKey('id')) return;
         await playSong(_playlist[_curSongIndex]['id']);
@@ -262,9 +282,11 @@ class MainUI {
       if (_playerStatus.status == Status.PAUSED) {
         player.resume();
         if (_watch != null) _watch.start();
+        if (Platform.isWindows) _playerStatus.setStatus(STATUS_VALUES[Status.PLAYING]);
       } else {
         player.pause();
         if (_watch != null) _watch.stop();
+        if (Platform.isWindows) _playerStatus.setStatus(STATUS_VALUES[Status.PAUSED]);
       }
     } else {
       _playingMenu = getMenuIndexStack();
@@ -392,14 +414,7 @@ class MainUI {
         timer.cancel();
         _watch..stop()..reset();
         if (Platform.isWindows) {
-          if (_playerStatus.status == Status.STOPPED) {
-            var songs = _playlist;
-            if (songs == null || _curSongIndex >= songs.length - 1) return;
-            _curSongIndex++;
-            Map songInfo = songs[_curSongIndex];
-            if (!songInfo.containsKey('id')) return;
-            await playSong(songInfo['id']);
-          }
+          await nextSong();
         }
       }
     });

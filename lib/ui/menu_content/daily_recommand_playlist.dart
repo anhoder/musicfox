@@ -5,15 +5,13 @@ import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
 
 class DailyRecommandPlaylist implements IMenuContent {
-  List _playlist;
+  List _playlists;
 
   @override
   bool get isPlayable => false;
 
   @override
-  Future<String> getContent(WindowUI ui) {
-    return Future.value('');
-  }
+  Future<String> getContent(WindowUI ui) => Future.value('');
 
   @override
   Future<IMenuContent> getMenuContent(WindowUI ui, int index) {
@@ -23,19 +21,19 @@ class DailyRecommandPlaylist implements IMenuContent {
 
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
-    if (_playlist == null || _playlist.isEmpty) {
+    if (_playlists == null || _playlists.isEmpty) {
       await checkLogin(ui);
       
       var playlist = Playlist();
       Map response = await playlist.getDailyRecommendPlaylists();
       response = validateResponse(response);
 
-      _playlist = response.containsKey('recommend') ? response['recommend'] : [];
+      _playlists = response.containsKey('recommend') ? response['recommend'] : [];
     }
-    ui.pageData = _playlist;
+    ui.pageData = _playlists;
 
     var res = <String>[];
-    _playlist.forEach((item) {
+    _playlists.forEach((item) {
       var name = '';
       if (item.containsKey('name')) {
         name = item['name'];
@@ -45,4 +43,7 @@ class DailyRecommandPlaylist implements IMenuContent {
 
     return Future.value(res);
   }
+
+  @override
+  Future<List<String>> bottomOut(WindowUI ui) => null;
 }
