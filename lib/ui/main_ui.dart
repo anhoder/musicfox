@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:colorful_cmd/component.dart';
 import 'package:colorful_cmd/utils.dart';
@@ -8,6 +9,7 @@ import 'package:mp3_player/audio_player.dart';
 import 'package:musicfox/cache/i_cache.dart';
 import 'package:musicfox/exception/response_exception.dart';
 import 'package:musicfox/lang/chinese.dart';
+import 'package:musicfox/ui/menu_content/bottom_out_content.dart';
 import 'package:musicfox/ui/menu_content/daily_recommand_playlist.dart';
 import 'package:musicfox/ui/menu_content/daily_recommend_songs.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
@@ -64,7 +66,6 @@ class MainUI {
       enterMain: enterMain,
       beforeEnterMenu: beforeEnterMenu,
       beforeNextPage: beforeNextPage,
-      bottomOut: bottomOut,
       init: init,
       quit: quit,
       lang: Chinese()
@@ -239,29 +240,14 @@ class MainUI {
     return menu;
   }
 
-  /// 到底回调
-  Future<List<String>> bottomOut(WindowUI ui) async {
-    try {
-      var menu = await getCurMenuContent(ui);
-      if (menu == null) return [];
-      var menus = await menu.bottomOut(ui);
-      if (menus != null && menus.isNotEmpty) return menus;
-    } on SocketException {
-      error('网络错误~, 请稍后重试');
-    } on ResponseException catch (e) {
-      error(e.toString());
-    }
-    return [];
-  }
-
   /// 空格监听
   void play(_) async {
     var inPlaying = inPlayingMenu();
-    var songs = inPlaying ? _playlist : _window.pageData;
+    var menu = await getCurMenuContent(_window);
+    var songs = (inPlaying && !menu.isResetPlaylist) ? _playlist : _window.pageData;
     
     var player = (await _player);
     var index = _window.selectIndex;
-    var menu = await getCurMenuContent(_window);
     if (menu == null || !menu.isPlayable || songs == null || index > songs.length - 1) {
       if (_playerStatus.status == Status.PAUSED) {
         if (Platform.isWindows) _playerStatus.setStatus(STATUS_VALUES[Status.PLAYING]);
@@ -299,13 +285,36 @@ class MainUI {
       _playlist = songs;
       await playSong(songInfo['id']);
     }
+  }
 
+  /// 获取bottom out content
+  Future<BottomOutContent> getBottomOutContent() async {
+    try {
+      var menu = await getCurMenuContent(_window);
+      if (menu == null) return null;
+      var bottomOutContent = await menu.bottomOut(_window);
+      if (bottomOutContent != null) return bottomOutContent;
+    } on SocketException {
+      error('网络错误~, 请稍后重试');
+    } on ResponseException catch (e) {
+      error(e.toString());
+    }
+    return null;
   }
 
   /// 下一曲
   Future<void> nextSong() async {
     var songs = _playlist;
-    if (songs == null || _curSongIndex >= songs.length - 1) return;
+    if (songs == null || _curSongIndex >= songs.length - 1) {
+      var content = await getBottomOutContent();
+      if (content == null) return;
+      if (content.appendMenus != null && content.appendMenus.isNotEmpty) {
+        _window.menu.addAll(content.appendMenus);
+      }
+      if (content.appendSongs != null && content.appendSongs.isNotEmpty) {
+        _playlist.addAll(content.appendSongs);
+      }
+    };
     _curSongIndex++;
     Map songInfo = songs[_curSongIndex];
     if (!songInfo.containsKey('id')) return;
@@ -322,9 +331,21 @@ class MainUI {
     await playSong(songInfo['id']);
   }
 
+  /// 播放列表对比
+  bool comparePlaylist(List p1, List p2) {
+    if (p1 == null || p2 == null) return false;
+    if (p1.length != p2.length) return false;
+    var length = min(p1.length - 1, 10);
+    for (var i = 0; i < length; i++) {
+      if (!p1[i].containsKey('id') || !p2[i].containsKey('id')) return false;
+      if (p1[i]['id'] != p2[i]['id']) return false;
+    }
+    return true;
+  }
+
   /// 定位到相应的播放歌曲
   void locateSong() {
-    if (!inPlayingMenu()) return;
+    if (!inPlayingMenu() || !comparePlaylist(_playlist, _window.pageData)) return;
     var pageDelta = (_curSongIndex / _window.menuPageSize).floor() - (_window.menuPage - 1);
     if (pageDelta > 0) {
       for (var i = 0; i < pageDelta; i++) {
@@ -332,7 +353,7 @@ class MainUI {
       }
     } else if (pageDelta < 0) {
       for (var i = 0; i > pageDelta; i--) {
-        _window.prePage ();
+        _window.prePage();
       }
     }
     _window.selectIndex = _curSongIndex;

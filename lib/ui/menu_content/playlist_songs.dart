@@ -1,5 +1,6 @@
 import 'package:colorful_cmd/component.dart';
 import 'package:colorful_cmd/utils.dart';
+import 'package:musicfox/ui/menu_content/bottom_out_content.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
@@ -11,6 +12,9 @@ class PlaylistSongs implements IMenuContent {
 
   @override
   bool get isPlayable => true;
+
+  @override
+  bool get isResetPlaylist => false;
 
   PlaylistSongs(int playlistId) {
     if (_playlistId != playlistId) _songs = null;
@@ -67,6 +71,6 @@ class PlaylistSongs implements IMenuContent {
   }
 
   @override
-  Future<List<String>> bottomOut(WindowUI ui) => null;
+  Future<BottomOutContent> bottomOut(WindowUI ui) => null;
   
 }

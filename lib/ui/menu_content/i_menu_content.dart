@@ -1,8 +1,10 @@
 import 'package:colorful_cmd/component.dart';
+import 'package:musicfox/ui/menu_content/bottom_out_content.dart';
 
 abstract class IMenuContent {
 
   bool get isPlayable;
+  bool get isResetPlaylist;
 
   Future<List<String>> getMenus(WindowUI ui);
 
@@ -10,5 +12,5 @@ abstract class IMenuContent {
 
   Future<IMenuContent> getMenuContent(WindowUI ui, int index);
 
-  Future<List<String>> bottomOut(WindowUI ui);
+  Future<BottomOutContent> bottomOut(WindowUI ui);
 }
