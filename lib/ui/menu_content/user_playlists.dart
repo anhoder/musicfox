@@ -15,7 +15,7 @@ class UserPlaylists implements IMenuContent {
     if (userId == null) {
       var cache = CacheFactory.produce();
       var user = cache.get('user');
-      userId = user['userId'];
+      if (user != null && user.containsKey('userId')) userId = user['userId'];
     }
     if (_userId != userId) _playlists = null;
     _userId = userId;
@@ -38,9 +38,17 @@ class UserPlaylists implements IMenuContent {
 
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
-    if (_userId == null) return [];
     if (_playlists == null || _playlists.isEmpty) {
       await checkLogin(ui);
+      if (_userId == null) {
+        var cache = CacheFactory.produce();
+        var user = cache.get('user');
+        if (user != null && user.containsKey('userId')) {
+          _userId = user['userId'];
+        } else {
+          return [];
+        }
+      };
       
       var playlist = Playlist();
       Map response = await playlist.gteUserPlaylists(_userId);
