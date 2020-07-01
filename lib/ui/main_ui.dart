@@ -11,6 +11,7 @@ import 'package:musicfox/lang/chinese.dart';
 import 'package:musicfox/ui/menu_content/daily_recommand_playlist.dart';
 import 'package:musicfox/ui/menu_content/daily_recommend_songs.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
+import 'package:musicfox/ui/menu_content/personal_fm.dart';
 import 'package:musicfox/ui/menu_content/user_playlists.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:musicfox/utils/music_info.dart';
@@ -21,7 +22,8 @@ import 'package:netease_music_request/request.dart' as request;
 final MENU_CONTENTS = <IMenuContent>[
   DailyRecommendSongs(),
   DailyRecommandPlaylist(),
-  UserPlaylists()
+  UserPlaylists(),
+  PersonalFm()
 ];
 
 class MainUI {
