@@ -9,10 +9,12 @@ import 'package:mp3_player/audio_player.dart';
 import 'package:musicfox/cache/i_cache.dart';
 import 'package:musicfox/exception/response_exception.dart';
 import 'package:musicfox/lang/chinese.dart';
+import 'package:musicfox/ui/menu_content/albums.dart';
 import 'package:musicfox/ui/menu_content/bottom_out_content.dart';
 import 'package:musicfox/ui/menu_content/daily_recommand_playlist.dart';
 import 'package:musicfox/ui/menu_content/daily_recommend_songs.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
+import 'package:musicfox/ui/menu_content/new_albums.dart';
 import 'package:musicfox/ui/menu_content/personal_fm.dart';
 import 'package:musicfox/ui/menu_content/user_playlists.dart';
 import 'package:musicfox/utils/function.dart';
@@ -25,7 +27,8 @@ final MENU_CONTENTS = <IMenuContent>[
   DailyRecommendSongs(),
   DailyRecommandPlaylist(),
   UserPlaylists(),
-  PersonalFm()
+  PersonalFm(),
+  Albums(),
 ];
 
 class MainUI {
@@ -54,7 +57,7 @@ class MainUI {
         '每日推荐歌单',
         '我的歌单',
         '私人FM',
-        '新歌上架',
+        '专辑列表',
         '搜索',
         '排行榜',
         '精选歌单',
@@ -344,16 +347,16 @@ class MainUI {
   }
 
   /// 定位到相应的播放歌曲
-  void locateSong() {
+  Future<void> locateSong() async {
     if (!inPlayingMenu() || !comparePlaylist(_playlist, _window.pageData)) return;
     var pageDelta = (_curSongIndex / _window.menuPageSize).floor() - (_window.menuPage - 1);
     if (pageDelta > 0) {
       for (var i = 0; i < pageDelta; i++) {
-        _window.nextPage();
+        await _window.nextPage();
       }
     } else if (pageDelta < 0) {
       for (var i = 0; i > pageDelta; i--) {
-        _window.prePage();
+        await _window.prePage();
       }
     }
     _window.selectIndex = _curSongIndex;
@@ -398,7 +401,7 @@ class MainUI {
   /// 播放指定音乐
   Future<void> playSong(int songId) async {
     _playerStatus.setStatus(STATUS_VALUES[Status.PLAYING]);
-    locateSong();
+    await locateSong();
     displayPlayerUI(true);
     notify();
     _watch.stop();
