@@ -1,5 +1,5 @@
 import 'package:colorful_cmd/component.dart';
-import 'package:musicfox/ui/menu_content/bottom_out_content.dart';
+import 'package:musicfox/ui/bottom_out_content.dart';
 
 abstract class IMenuContent {
 

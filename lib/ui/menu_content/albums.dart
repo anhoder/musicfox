@@ -1,4 +1,4 @@
-import 'package:musicfox/ui/menu_content/bottom_out_content.dart';
+import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:colorful_cmd/component.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/ui/menu_content/new_albums.dart';

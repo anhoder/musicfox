@@ -1,6 +1,6 @@
 import 'package:colorful_cmd/utils.dart';
 import 'package:musicfox/ui/menu_content/album_content.dart';
-import 'package:musicfox/ui/menu_content/bottom_out_content.dart';
+import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:colorful_cmd/component.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/utils/function.dart';
@@ -32,15 +32,7 @@ class NewAlbums implements IMenuContent {
     }
     ui.pageData = _albums;
 
-    var res = <String>[];
-    _albums.forEach((album) {
-      var name = album.containsKey('name') ? album['name'] : '';
-      var artistName = album.containsKey('artist') ? album['artist']['name'] : '';
-      artistName = '<${artistName}>';
-      name = '${name} ' + ColorText().gray(artistName).toString();
-
-      res.add(name);
-    });
+    var res = getListFromAlbums(_albums);
 
     return res;
   }

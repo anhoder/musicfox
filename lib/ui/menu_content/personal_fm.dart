@@ -1,6 +1,6 @@
 import 'package:colorful_cmd/component.dart';
 import 'package:colorful_cmd/utils.dart';
-import 'package:musicfox/ui/menu_content/bottom_out_content.dart';
+import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
@@ -22,24 +22,7 @@ class PersonalFm implements IMenuContent {
 
     var songs = response.containsKey('data') ? response['data'] : [];
 
-    var res = <String>[];
-    songs.forEach((item) {
-      var name = '';
-      if (item.containsKey('name')) {
-        var artistName = '';
-        name = item['name'];
-        if (item.containsKey('artists')) {
-          item['artists'].forEach((artist) {
-            if (artist.containsKey('name')) {
-              artistName = artistName == '' ? artist['name'] : '${artistName},${artist['name']}';
-            }
-          });
-        }
-        artistName = '<${artistName}>';
-        name = '${name} ' + ColorText().gray(artistName).toString();
-      }
-      res.add(name);
-    });
+    var res = getListFromSongs(songs);
 
     return BottomOutContent(res, songs);
   }

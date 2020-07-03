@@ -1,6 +1,6 @@
 import 'package:colorful_cmd/component.dart';
 import 'package:musicfox/cache/i_cache.dart';
-import 'package:musicfox/ui/menu_content/bottom_out_content.dart';
+import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/ui/menu_content/playlist_songs.dart';
 import 'package:musicfox/utils/function.dart';

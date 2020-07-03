@@ -10,12 +10,12 @@ import 'package:musicfox/cache/i_cache.dart';
 import 'package:musicfox/exception/response_exception.dart';
 import 'package:musicfox/lang/chinese.dart';
 import 'package:musicfox/ui/menu_content/albums.dart';
-import 'package:musicfox/ui/menu_content/bottom_out_content.dart';
+import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:musicfox/ui/menu_content/daily_recommand_playlist.dart';
 import 'package:musicfox/ui/menu_content/daily_recommend_songs.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
-import 'package:musicfox/ui/menu_content/new_albums.dart';
 import 'package:musicfox/ui/menu_content/personal_fm.dart';
+import 'package:musicfox/ui/menu_content/search_type.dart';
 import 'package:musicfox/ui/menu_content/user_playlists.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:musicfox/utils/music_info.dart';
@@ -29,6 +29,7 @@ final MENU_CONTENTS = <IMenuContent>[
   UserPlaylists(),
   PersonalFm(),
   Albums(),
+  SearchType(),
 ];
 
 class MainUI {

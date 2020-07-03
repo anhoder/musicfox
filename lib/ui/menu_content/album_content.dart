@@ -1,5 +1,5 @@
 import 'package:colorful_cmd/utils.dart';
-import 'package:musicfox/ui/menu_content/bottom_out_content.dart';
+import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:colorful_cmd/component.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/utils/function.dart';
@@ -35,24 +35,7 @@ class AlbumContent implements IMenuContent {
     }
     ui.pageData = _songs;
 
-    var res = <String>[];
-    _songs.forEach((item) {
-      var name = '';
-      if (item.containsKey('name')) {
-        var artistName = '';
-        name = item['name'];
-        if (item.containsKey('ar')) {
-          item['ar'].forEach((artist) {
-            if (artist.containsKey('name')) {
-              artistName = artistName == '' ? artist['name'] : '${artistName},${artist['name']}';
-            }
-          });
-        }
-        artistName = '<${artistName}>';
-        name = '${name} ' + ColorText().gray(artistName).toString();
-      }
-      res.add(name);
-    });
+    var res = getListFromSongs(_songs);
 
     return res;
   }
