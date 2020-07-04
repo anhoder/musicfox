@@ -34,7 +34,7 @@ class SearchType implements IMenuContent {
   @override
   Future<IMenuContent> getMenuContent(WindowUI ui, int index) {
     if (index > SEARCH_TYPE.length - 1) return null;
-    return Future.value(SearchResult(index));
+    return Future.value(SearchResult(ui, SEARCH_TYPE[index], SEARCH_TYPE_NAME[index]));
   }
 
   @override

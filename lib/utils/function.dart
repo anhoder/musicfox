@@ -66,3 +66,47 @@ List<String> getListFromAlbums(List albums) {
   });
   return res;
 }
+
+/// 获取歌手列表
+List<String> getListFromArtists(List artists) {
+  var res = <String>[];
+  artists.forEach((artist) {
+    var name = artist.containsKey('name') ? artist['name'] : '';
+    res.add(name);
+  });
+  return res;
+}
+
+/// 获取歌单列表
+List<String> getListFromPlaylists(List playlists) {
+  var res = <String>[];
+  playlists.forEach((item) {
+    var name = item.containsKey('name') ? item['name'] : '';
+    res.add(name);
+  });
+  return res;
+}
+
+/// 获取用户列表
+List<String> getListFromUsers(List users) {
+  var res = <String>[];
+  users.forEach((item) {
+    var name = item.containsKey('nickname') ? item['nickname'] : '';
+    if (item.containsKey('userId')) {
+      var userId = ColorText().gray('<${item['userId']}>');
+      name = '${name} ${userId}';
+    }
+    res.add(name);
+  });
+  return res;
+}
+
+/// 获取电台列表
+List<String> getListFromDjs(List djs) {
+  var res = <String>[];
+  djs.forEach((item) {
+    var name = item.containsKey('name') ? item['name'] : '';
+    res.add(name);
+  });
+  return res;
+}

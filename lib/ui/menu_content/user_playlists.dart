@@ -59,14 +59,7 @@ class UserPlaylists implements IMenuContent {
 
     ui.pageData = _playlists;
 
-    var res = <String>[];
-    _playlists.forEach((item) {
-      var name = '';
-      if (item.containsKey('name')) {
-        name = item['name'];
-      }
-      res.add(name);
-    });
+    var res = getListFromPlaylists(_playlists);
 
     return Future.value(res);
   }
