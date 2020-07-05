@@ -412,7 +412,10 @@ class MainUI {
     var songRequest = request.Song();
     Map songUrl = await songRequest.getSongUrlByWeb(songId);
     songUrl = songUrl['data'][0];
-    if (!songUrl.containsKey('url') || songUrl['url'] == null) return;
+    if (!songUrl.containsKey('url') || songUrl['url'] == null) {
+      await nextSong();
+      return;
+    };
     (await _player).playWithoutList(songUrl['url']);
     _curMusicInfo.setId(songId);
     var duration = 0;

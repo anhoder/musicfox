@@ -93,7 +93,7 @@ List<String> getListFromUsers(List users) {
   users.forEach((item) {
     var name = item.containsKey('nickname') ? item['nickname'] : '';
     if (item.containsKey('userId')) {
-      var userId = ColorText().gray('<${item['userId']}>');
+      var userId = ColorText().gray('(${item['userId']})');
       name = '${name} ${userId}';
     }
     res.add(name);
