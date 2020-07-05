@@ -43,4 +43,7 @@ class DailyRecommandPlaylist implements IMenuContent {
 
   @override
   Future<BottomOutContent> bottomOut(WindowUI ui) => null;
+
+  @override
+  String getMenuId() => 'DailyRecommandPlaylist()';
 }

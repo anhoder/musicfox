@@ -13,4 +13,6 @@ abstract class IMenuContent {
   Future<IMenuContent> getMenuContent(WindowUI ui, int index);
 
   Future<BottomOutContent> bottomOut(WindowUI ui);
+
+  String getMenuId();
 }

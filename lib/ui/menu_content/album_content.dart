@@ -5,8 +5,8 @@ import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
 
 class AlbumContent implements IMenuContent {
-  static int _albumId;
-  static List _songs;
+  int _albumId;
+  List _songs;
 
   AlbumContent(int albumId) {
     if (_albumId != albumId) _songs = null;
@@ -44,5 +44,8 @@ class AlbumContent implements IMenuContent {
 
   @override
   bool get isResetPlaylist => false;
+
+  @override
+  String getMenuId() => 'AlbumContent(${_albumId})';
   
 }

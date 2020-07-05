@@ -41,5 +41,8 @@ class NewestAlbums implements IMenuContent {
 
   @override
   bool get isResetPlaylist => false;
+
+  @override
+  String getMenuId() => 'NewestAlbums()';
   
 }

@@ -8,8 +8,8 @@ import 'package:netease_music_request/request.dart';
 
 class UserPlaylists implements IMenuContent {
 
-  static int _userId;
-  static List _playlists;
+  int _userId;
+  List _playlists;
 
   UserPlaylists([int userId]) {
     if (userId == null) {
@@ -67,4 +67,6 @@ class UserPlaylists implements IMenuContent {
   @override
   Future<BottomOutContent> bottomOut(WindowUI ui) => null;
   
+  @override
+  String getMenuId() => 'UserPlaylists(${_userId})';
 }

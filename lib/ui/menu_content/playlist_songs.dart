@@ -6,8 +6,8 @@ import 'package:netease_music_request/request.dart';
 
 class PlaylistSongs implements IMenuContent {
 
-  static int _playlistId;
-  static List _songs;
+  int _playlistId;
+  List _songs;
 
   @override
   bool get isPlayable => true;
@@ -55,4 +55,7 @@ class PlaylistSongs implements IMenuContent {
   @override
   Future<BottomOutContent> bottomOut(WindowUI ui) => null;
   
+  @override
+  String getMenuId() => 'PlaylistSongs(${_playlistId})';
+
 }

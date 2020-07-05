@@ -68,5 +68,7 @@ class PersonalFm implements IMenuContent {
     return Future.value(res);
   }
 
-  
+  @override
+  String getMenuId() => 'PersonalFm()';
+
 }

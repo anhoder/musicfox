@@ -10,8 +10,8 @@ import 'package:musicfox/utils/function.dart';
 
 class SearchResult implements IMenuContent {
 
-  static int _type;
-  static List _data;
+  int _type;
+  List _data;
   
   final String _menu;
   final WindowUI _ui;
@@ -87,4 +87,7 @@ class SearchResult implements IMenuContent {
   @override
   bool get isResetPlaylist => true;
   
+  @override
+  String getMenuId() => 'SearchResult(${_type})';
+
 }
