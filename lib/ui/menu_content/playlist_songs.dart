@@ -1,5 +1,4 @@
 import 'package:colorful_cmd/component.dart';
-import 'package:colorful_cmd/utils.dart';
 import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/utils/function.dart';
@@ -30,7 +29,7 @@ class PlaylistSongs implements IMenuContent {
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
     if (_playlistId == null) return [];
-    if (_songs == null || _songs.isEmpty) {
+    if (_songs == null) {
       var playlist = Playlist();
       Map response = await playlist.getPlaylistDetail(_playlistId);
       response = validateResponse(response);

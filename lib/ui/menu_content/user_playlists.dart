@@ -15,7 +15,7 @@ class UserPlaylists implements IMenuContent {
     if (userId == null) {
       var cache = CacheFactory.produce();
       var user = cache.get('user');
-      if (user != null && user.containsKey('userId')) userId = user['userId'];
+      if (user != null && user.containsKey('userId')) _userId = user['userId'];
     }
     if (_userId != userId) _playlists = null;
     _userId = userId;

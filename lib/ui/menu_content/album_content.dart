@@ -1,4 +1,3 @@
-import 'package:colorful_cmd/utils.dart';
 import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:colorful_cmd/component.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
@@ -26,7 +25,7 @@ class AlbumContent implements IMenuContent {
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
     if (_albumId == null) return [];
-    if (_songs == null || _songs.isEmpty) {
+    if (_songs == null) {
       var album = Album();
       Map response = await album.getAlbum(_albumId);
       response = validateResponse(response);

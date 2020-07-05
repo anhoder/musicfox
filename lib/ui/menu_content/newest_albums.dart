@@ -1,4 +1,3 @@
-import 'package:colorful_cmd/utils.dart';
 import 'package:musicfox/ui/menu_content/album_content.dart';
 import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:colorful_cmd/component.dart';
@@ -23,7 +22,7 @@ class NewestAlbums implements IMenuContent {
 
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
-    if (_albums == null || _albums.isEmpty) {
+    if (_albums == null) {
       var album = Album();
       Map response = await album.getHotNewAlbums();
       response = validateResponse(response);

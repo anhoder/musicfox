@@ -10,10 +10,11 @@ import 'package:musicfox/utils/function.dart';
 
 class SearchResult implements IMenuContent {
 
-  final int _type;
+  static int _type;
+  static List _data;
+  
   final String _menu;
   final WindowUI _ui;
-  static List _data;
 
   static const Map SEARCH_TYPE_KEYS = {
     1:    'songs',        // 单曲
@@ -25,7 +26,9 @@ class SearchResult implements IMenuContent {
     1009: 'djRadios',     // 电台
   };
 
-  SearchResult(this._ui, this._type, this._menu);
+  SearchResult(this._ui, int type, this._menu) {
+    _type = type;
+  }
 
   @override
   Future<BottomOutContent> bottomOut(WindowUI ui) => null;
@@ -35,15 +38,14 @@ class SearchResult implements IMenuContent {
 
   @override
   Future<IMenuContent> getMenuContent(WindowUI ui, int index) {
-    if (_ui.menuStack.length < 2 || _data == null || _data.isEmpty) return null;
-    var lastIndex = _ui.menuStack[_ui.menuStack.length - 2].index;
-    switch (SEARCH_TYPE_KEYS[SearchType.SEARCH_TYPE[lastIndex]]) {
+    if (_ui.menuStack.length < 2 || _data == null) return null;
+    switch (SEARCH_TYPE_KEYS[_type]) {
       case 'albums':
         return Future.value(AlbumContent(_data[index]['id']));
       case 'playlists':
         return Future.value(PlaylistSongs(_data[index]['id']));
       case 'userprofiles':
-        return Future.value(UserPlaylists(_data[index]['id']));
+        return Future.value(UserPlaylists(_data[index]['userId']));
     }
     return null;
   }

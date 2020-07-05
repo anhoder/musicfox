@@ -209,6 +209,7 @@ class MainUI {
       var menus = await menu.getMenus(ui);
       if (menus != null && menus.isNotEmpty) return menus;
       var content = await menu.getContent(ui);
+      if (content == null) return;
       var row = ui.startRow;
       content.split('\n').forEach((line) {
         Console.moveCursor(row: row, column: ui.startColumn);
@@ -231,15 +232,15 @@ class MainUI {
   /// 获取当前菜单
   Future<IMenuContent> getCurMenuContent(WindowUI ui) async {
     if (ui.menuStack == null || ui.menuStack.isEmpty) return null;
-    var lastItem = ui.menuStack.first;
-    if (lastItem.index > MENU_CONTENTS.length - 1) return null;
-    var menu = MENU_CONTENTS[lastItem.index];
+    var firstItem = ui.menuStack.first;
+    if (firstItem.index > MENU_CONTENTS.length - 1) return null;
+    var menu = MENU_CONTENTS[firstItem.index];
 
     if (ui.menuStack.length > 1) {
       for (var i = 1; i < ui.menuStack.length - 1; i++) {
         menu = await menu.getMenuContent(ui, ui.menuStack[i].index);
       }
-      menu = await menu.getMenuContent(ui, ui.selectIndex);
+      if (menu != null) menu = await menu.getMenuContent(ui, ui.selectIndex);
     }
     return menu;
   }
