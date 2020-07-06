@@ -239,6 +239,7 @@ class MainUI {
 
   /// 返回菜单
   Future<void> beforeBackMenu(WindowUI ui) {
+    if (_menuContentStack.isEmpty) return null;
     _curMenuContent = _menuContentStack.removeLast();
     return Future.value();
   }
