@@ -11,11 +11,15 @@ import 'package:musicfox/exception/response_exception.dart';
 import 'package:musicfox/lang/chinese.dart';
 import 'package:musicfox/ui/menu_content/albums.dart';
 import 'package:musicfox/ui/bottom_out_content.dart';
+import 'package:musicfox/ui/menu_content/cloud.dart';
 import 'package:musicfox/ui/menu_content/daily_recommand_playlist.dart';
 import 'package:musicfox/ui/menu_content/daily_recommend_songs.dart';
+import 'package:musicfox/ui/menu_content/high_quality_playlist.dart';
+import 'package:musicfox/ui/menu_content/hot_artist.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/ui/menu_content/main_menu.dart';
 import 'package:musicfox/ui/menu_content/personal_fm.dart';
+import 'package:musicfox/ui/menu_content/ranks.dart';
 import 'package:musicfox/ui/menu_content/search_type.dart';
 import 'package:musicfox/ui/menu_content/user_playlists.dart';
 import 'package:musicfox/utils/function.dart';
@@ -31,6 +35,10 @@ final MENU_CONTENTS = <IMenuContent>[
   PersonalFm(),
   Albums(),
   SearchType(),
+  Ranks(),
+  HighQualityPlaylist(),
+  HotArtist(),
+  Cloud(),
 ];
 
 class MainUI {
@@ -44,7 +52,7 @@ class MainUI {
   List _playlist = [];
   NotifierProxy _notifier;
   final List<IMenuContent> _menuContentStack = [];
-  IMenuContent _curMenuContent;
+  IMenuContent _curMenuContent = MainMenu();
 
   // from player
   MusicInfo _curMusicInfo; 
@@ -66,8 +74,8 @@ class MainUI {
         '排行榜',
         '精选歌单',
         '热门歌手',
-        '主播电台',
         '云盘',
+        '主播电台',
       ],
       defaultMenuTitle: '网易云音乐',
       enterMain: enterMain,
@@ -89,7 +97,7 @@ class MainUI {
     _curSongIndex = progress.containsKey('curSongIndex') ? progress['curSongIndex'] : 0;
     _playlist = progress.containsKey('playlist') ? progress['playlist'] : [];
     _playingMenuId = progress.containsKey('playingMenuId') ? progress['playingMenuId'] : null;
-    _curMenuContent = MainMenu();
+    // _curMenuContent = MainMenu();
   }
 
   Future<Player> get _player async {
@@ -154,6 +162,9 @@ class MainUI {
   /// 显示播放器UI
   void displayPlayerUI([bool changeSong = false]) {
     if (_playlist == null || _playlist.isEmpty || _curSongIndex == null) return;
+
+    // 歌词
+
     // 歌曲名
     Console.moveCursor(row: Console.rows - 3, column: _window.startColumn);
     var status = _playerStatus.status == Status.PLAYING ? '♫  ♪ ♫  ♪' : '_ _ z Z Z';

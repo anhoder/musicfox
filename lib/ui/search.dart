@@ -25,7 +25,7 @@ Future<Map> search(WindowUI ui, int type, String menu) async {
   var search = Search();
   var response = await search.search(keywords, type: type);
 
-  response = validateResponse(response);
+  response = validateResponse(ui, response);
 
   ui.earseMenu();
 

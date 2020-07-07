@@ -4,14 +4,11 @@ import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
 
-class AlbumContent implements IMenuContent {
-  int _albumId;
-  List _songs;
+class ArtistSongs implements IMenuContent {
 
-  AlbumContent(int albumId) {
-    if (_albumId != albumId) _songs = null;
-    _albumId = albumId;
-  }
+  final int _artistId;
+
+  ArtistSongs(this._artistId);
 
   @override
   Future<BottomOutContent> bottomOut(WindowUI ui) => null;
@@ -23,20 +20,20 @@ class AlbumContent implements IMenuContent {
   Future<IMenuContent> getMenuContent(WindowUI ui, int index) => null;
 
   @override
+  String getMenuId() => 'ArtistSongs(${_artistId})';
+
+  @override
   Future<List<String>> getMenus(WindowUI ui) async {
-    if (_albumId == null) return [];
-    if (_songs == null) {
-      var album = Album();
-      Map response = await album.getAlbum(_albumId);
-      response = validateResponse(ui, response);
+    var artist = Artist();
+    Map response = await artist.getSongs(_artistId);
+    response = validateResponse(ui, response);
 
-      _songs = response.containsKey('songs') ? response['songs'] : [];
-    }
-    ui.pageData = _songs;
+    var songs = response.containsKey('hotSongs') ? response['hotSongs'] : [];
+    ui.pageData = songs;
 
-    var res = getListFromSongs(_songs);
+    var res = getListFromSongs(songs);
 
-    return res;
+    return Future.value(res);
   }
 
   @override
@@ -44,8 +41,5 @@ class AlbumContent implements IMenuContent {
 
   @override
   bool get isResetPlaylist => false;
-
-  @override
-  String getMenuId() => 'AlbumContent(${_albumId})';
   
 }

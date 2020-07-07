@@ -1,9 +1,15 @@
 import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:colorful_cmd/component.dart';
-import 'package:musicfox/ui/main_ui.dart';
+import 'package:musicfox/ui/menu_content/artist_albums.dart';
+import 'package:musicfox/ui/menu_content/artist_songs.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 
-class MainMenu implements IMenuContent {
+class Artist implements IMenuContent {
+
+  final int _artistId;
+
+  Artist(this._artistId);
+
   @override
   Future<BottomOutContent> bottomOut(WindowUI ui) => null;
 
@@ -12,27 +18,23 @@ class MainMenu implements IMenuContent {
 
   @override
   Future<IMenuContent> getMenuContent(WindowUI ui, int index) {
-    if (index > MENU_CONTENTS.length - 1) return null;
-    return Future.value(MENU_CONTENTS[index]);
+    switch (index) {
+      case 0:
+        return Future.value(ArtistSongs(_artistId));
+      case 1:
+        return Future.value(ArtistAlbums(_artistId));
+    }
+    return null;
   }
 
   @override
-  String getMenuId() => 'MainMenu()';
+  String getMenuId() => 'Artist()';
 
   @override
   Future<List<String>> getMenus(WindowUI ui) {
     return Future.value([
-      '每日推荐歌曲',
-      '每日推荐歌单',
-      '我的歌单',
-      '私人FM',
-      '专辑列表',
-      '搜索',
-      '排行榜',
-      '精选歌单',
-      '热门歌手',
-      '云盘',
-      '主播电台',
+      '热门歌曲',
+      '热门专辑',
     ]);
   }
 

@@ -1,6 +1,7 @@
 import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:colorful_cmd/component.dart';
 import 'package:musicfox/ui/menu_content/album_content.dart';
+import 'package:musicfox/ui/menu_content/artist.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/ui/menu_content/playlist_songs.dart';
 import 'package:musicfox/ui/menu_content/search_type.dart';
@@ -46,6 +47,8 @@ class SearchResult implements IMenuContent {
         return Future.value(PlaylistSongs(_data[index]['id']));
       case 'userprofiles':
         return Future.value(UserPlaylists(_data[index]['userId']));
+      case 'artists':
+        return Future.value(Artist(_data[index]['id']));
     }
     return null;
   }

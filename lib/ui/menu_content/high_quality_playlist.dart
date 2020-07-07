@@ -1,39 +1,36 @@
-import 'package:musicfox/ui/menu_content/album_content.dart';
 import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:colorful_cmd/component.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
+import 'package:musicfox/ui/menu_content/playlist_songs.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
 
-class NewestAlbums implements IMenuContent {
-  List _albums;
-
+class HighQualityPlaylist implements IMenuContent {
   @override
   Future<BottomOutContent> bottomOut(WindowUI ui) => null;
-  
+
   @override
   Future<String> getContent(WindowUI ui) => null;
 
   @override
   Future<IMenuContent> getMenuContent(WindowUI ui, int index) {
     if (ui.pageData.length - 1 < index || !ui.pageData[index].containsKey('id')) return null;
-    return Future.value(AlbumContent(ui.pageData[index]['id']));
+    return Future.value(PlaylistSongs(ui.pageData[index]['id']));
   }
 
   @override
+  String getMenuId() => 'HighQualityPlaylist()';
+
+  @override
   Future<List<String>> getMenus(WindowUI ui) async {
-    if (_albums == null) {
-      var album = Album();
-      Map response = await album.getHotNewAlbums();
-      response = validateResponse(ui, response);
+    var playlist = Playlist();
+    Map response = await playlist.getQualityPlaylists();
+    response = validateResponse(ui, response);
 
-      _albums = response.containsKey('albums') ? response['albums'] : [];
-    }
-    ui.pageData = _albums;
+    var playlists = response.containsKey('playlists') ? response['playlists'] : [];
+    ui.pageData = playlists;
 
-    var res = getListFromAlbums(_albums);
-
-    return res;
+    return getListFromPlaylists(playlists);
   }
 
   @override
@@ -41,8 +38,5 @@ class NewestAlbums implements IMenuContent {
 
   @override
   bool get isResetPlaylist => false;
-
-  @override
-  String getMenuId() => 'NewestAlbums()';
   
 }

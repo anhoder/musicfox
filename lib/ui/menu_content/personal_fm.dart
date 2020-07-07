@@ -18,7 +18,7 @@ class PersonalFm implements IMenuContent {
   Future<BottomOutContent> bottomOut(WindowUI ui) async {
     var song = Song();
     Map response = await song.getPersonalFMSongs();
-    response = validateResponse(response);
+    response = validateResponse(ui, response);
 
     var songs = response.containsKey('data') ? response['data'] : [];
 
@@ -40,7 +40,7 @@ class PersonalFm implements IMenuContent {
       
       var song = Song();
       Map response = await song.getPersonalFMSongs();
-      response = validateResponse(response);
+      response = validateResponse(ui, response);
 
       _songs = response.containsKey('data') ? response['data'] : [];
     }

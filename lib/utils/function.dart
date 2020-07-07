@@ -1,8 +1,9 @@
 import 'package:colorful_cmd/component.dart';
 import 'package:colorful_cmd/utils.dart';
+import 'package:console/console.dart';
 import 'package:musicfox/cache/i_cache.dart';
-import 'package:musicfox/exception/response_exception.dart';
 import 'package:musicfox/ui/login.dart';
+import 'package:netease_music_request/request.dart';
 
 /// 检查是否登录，未登录调起登录
 Future<void> checkLogin(WindowUI ui) async {
@@ -12,12 +13,18 @@ Future<void> checkLogin(WindowUI ui) async {
 }
 
 /// 验证响应
-Map validateResponse(Map response) {
+Map validateResponse(WindowUI ui, Map response) {
   if (response['code'] == 400) {
-    throw ResponseException('输入错误');
+    ui.earseMenu();
+    Console.moveCursor(row: ui.startRow, column: ui.startColumn);
+    Console.write(ColorText().darkRed('输入错误').toString());
+    return null;
   } else {
     if (response['code'] >= 500) {
-      throw ResponseException(response['msg'] ?? '');
+      ui.earseMenu();
+      Console.moveCursor(row: ui.startRow, column: ui.startColumn);
+      Console.write(ColorText().darkRed(response['msg'] ?? '').toString());
+      return null;
     }
   }
   return response;
@@ -109,4 +116,25 @@ List<String> getListFromDjs(List djs) {
     res.add(name);
   });
   return res;
+}
+
+/// 获取排行榜
+List<String> getListFromRanks(List ranks) {
+  var res = <String>[];
+  ranks.forEach((item) {
+    var name = item.containsKey('name') ? item['name'] : '';
+    if (item.containsKey('updateFrequency')) {
+      var updateTime = ColorText().gray('<${item['updateFrequency']}>').toString();
+      name = '${name} ${updateTime}';
+    }
+    res.add(name);
+  });
+  return res;
+}
+
+/// 获取歌词
+Future<Map<String, String>> getLyric(int songId) async {
+  var song = Song();
+  var response = await song.getLyric(songId);
+  
 }

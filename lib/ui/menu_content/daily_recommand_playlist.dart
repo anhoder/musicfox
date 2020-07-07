@@ -30,7 +30,7 @@ class DailyRecommandPlaylist implements IMenuContent {
       
       var playlist = Playlist();
       Map response = await playlist.getDailyRecommendPlaylists();
-      response = validateResponse(response);
+      response = validateResponse(ui, response);
 
       _playlists = response.containsKey('recommend') ? response['recommend'] : [];
     }

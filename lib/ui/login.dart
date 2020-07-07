@@ -2,7 +2,6 @@ import 'package:colorful_cmd/component.dart';
 import 'package:colorful_cmd/utils.dart';
 import 'package:console/console.dart';
 import 'package:musicfox/cache/i_cache.dart';
-import 'package:musicfox/exception/response_exception.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
 
@@ -44,10 +43,13 @@ Future<void> login(WindowUI ui) async {
     response = await user.loginByPhone(account, password);
   }
 
-  response = validateResponse(response);
+  response = validateResponse(ui, response);
 
-  if (response['code'] != 200) {
-    throw ResponseException('账号或密码错误');
+  if (response != null && response['code'] != 200) {
+    ui.earseMenu();
+    Console.moveCursor(row: ui.startRow, column: ui.startColumn);
+    Console.write(ColorText().darkRed('账号或密码错误').toString());
+    return;
   }
 
   var cache = CacheFactory.produce();

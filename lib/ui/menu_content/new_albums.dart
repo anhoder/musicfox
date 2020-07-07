@@ -25,7 +25,7 @@ class NewAlbums implements IMenuContent {
     if (_albums == null) {
       var album = Album();
       Map response = await album.getNewAlbums();
-      response = validateResponse(response);
+      response = validateResponse(ui, response);
 
       _albums = response.containsKey('albums') ? response['albums'] : [];
     }

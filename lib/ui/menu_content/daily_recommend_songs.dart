@@ -23,7 +23,7 @@ class DailyRecommendSongs implements IMenuContent{
       
       var song = Song();
       Map response = await song.getRecommendSongs();
-      response = validateResponse(response);
+      response = validateResponse(ui, response);
 
       _songs = response.containsKey('recommend') ? response['recommend'] : [];
     }

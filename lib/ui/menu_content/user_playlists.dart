@@ -52,7 +52,7 @@ class UserPlaylists implements IMenuContent {
       
       var playlist = Playlist();
       Map response = await playlist.gteUserPlaylists(_userId);
-      response = validateResponse(response);
+      response = validateResponse(ui, response);
 
       _playlists = response.containsKey('playlist') ? response['playlist'] : [];
     }

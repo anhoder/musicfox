@@ -32,7 +32,7 @@ class PlaylistSongs implements IMenuContent {
     if (_songs == null) {
       var playlist = Playlist();
       Map response = await playlist.getPlaylistDetail(_playlistId);
-      response = validateResponse(response);
+      response = validateResponse(ui, response);
 
       List trackIds = response.containsKey('playlist') ? (response['playlist'].containsKey('trackIds') ? response['playlist']['trackIds'] : []) : [];
       var songIds = <int>[];
@@ -42,7 +42,7 @@ class PlaylistSongs implements IMenuContent {
 
       var song = Song();
       var songResponse = await song.getSongDetail(songIds);
-      songResponse = validateResponse(songResponse);
+      songResponse = validateResponse(ui, songResponse);
       _songs = songResponse.containsKey('songs') ? songResponse['songs'] : [];
     }
     ui.pageData = _songs;
