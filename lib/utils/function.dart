@@ -133,8 +133,27 @@ List<String> getListFromRanks(List ranks) {
 }
 
 /// 获取歌词
-Future<Map<String, String>> getLyric(int songId) async {
+Future<Map<int, String>> getLyric(int songId) async {
   var song = Song();
   var response = await song.getLyric(songId);
-  
+  String lyric = response['lrc']['lyric'];
+  if (lyric == null) return {};
+  var res = <int, String>{};
+  lyric.split('\n').forEach((item) {
+    var start = 0;
+    var last = item.lastIndexOf(']');
+    if (last < 0) return;
+    while (start < last) {
+      var str = item.substring(start);
+      var left = str.indexOf('[');
+      var right = str.indexOf(']');
+      var time = str.substring(left + 1, right).split(':');
+      if (time.length > 1 && time[0] != '' && time[1] != '') {
+        var millseconds = (int.parse(time[0]) * 60000 + double.parse(time[1]) * 1000).toInt();
+        res[millseconds] = str.substring(right + 1);
+      }
+      start = right + 1;
+    }
+  });
+  return res;
 }
