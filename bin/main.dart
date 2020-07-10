@@ -5,7 +5,7 @@ import 'package:colorful_cmd/command.dart';
 import 'package:colorful_cmd/logger.dart';
 import 'package:musicfox/command/player.dart';
 
-void main(List<String> args) {
+Future<void> main(List<String> args) async {
   var env = Platform.environment;
   String dirPath;
   if (Platform.isWindows) {
@@ -19,7 +19,7 @@ void main(List<String> args) {
     logHandlers: [FileLogHandler(dirPath: dirPath)]
   );
   var player = Player();
-  kernel.addCommands([player])
+  await kernel.addCommands([player])
         .setDefaultCommand(player)
         .run(args);
 }

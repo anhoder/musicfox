@@ -36,7 +36,7 @@ class PlaylistSongs implements IMenuContent {
 
       List trackIds = response.containsKey('playlist') ? (response['playlist'].containsKey('trackIds') ? response['playlist']['trackIds'] : []) : [];
       var songIds = <int>[];
-      trackIds.forEach((item) {
+      trackIds.getRange(0, 1000).forEach((item) {
         songIds.add(item['id']);
       });
 
