@@ -53,6 +53,7 @@ class MainUI {
   NotifierProxy _notifier;
   final List<IMenuContent> _menuContentStack = [];
   IMenuContent _curMenuContent = MainMenu();
+  Map<int, String> _curSongLyric;
 
   // from player
   MusicInfo _curMusicInfo; 
@@ -97,7 +98,6 @@ class MainUI {
     _curSongIndex = progress.containsKey('curSongIndex') ? progress['curSongIndex'] : 0;
     _playlist = progress.containsKey('playlist') ? progress['playlist'] : [];
     _playingMenuId = progress.containsKey('playingMenuId') ? progress['playingMenuId'] : null;
-    // _curMenuContent = MainMenu();
   }
 
   Future<Player> get _player async {
@@ -111,6 +111,8 @@ class MainUI {
         _playerStatus.setStatus(status);
         displayPlayerUI();
         if (!Platform.isWindows && _playerStatus.status == Status.STOPPED) {
+          _watch.stop();
+          _watch.reset();
           Timer(Duration(milliseconds: 1000), () async {
             if (_playerStatus.status == Status.STOPPED) {
               await nextSong();
@@ -164,6 +166,61 @@ class MainUI {
     if (_playlist == null || _playlist.isEmpty || _curSongIndex == null) return;
 
     // 歌词
+    if (_playerTimer != null && Console.rows - 4 - _window.curMaxMenuRow > 3) {
+      var startRow = ((Console.rows - 3 + _window.curMaxMenuRow) / 2).ceil();
+      var lyrics = <dynamic>['', '', '暂无歌词~', '', ''];
+      if (_curSongLyric != null) {
+        var times = _curSongLyric.keys.toList()..sort();
+        var curMilliseconds = _watch.elapsed.inMilliseconds;
+        for (var i = 0; i < times.length; i++) {
+          if (i > times.length - 2) {
+            lyrics = [
+              i > 1 ? _curSongLyric[times[i-2]] : '',
+              i > 0 ? _curSongLyric[times[i-1]] : '', 
+              _curSongLyric[times[i]], 
+              '',
+              '',
+            ];
+            break;
+          } else if (curMilliseconds < times[i+1]) {
+            lyrics = [
+              i > 1 ? _curSongLyric[times[i-2]] : '',
+              i > 0 ? _curSongLyric[times[i-1]] : '', 
+              _curSongLyric[times[i]], 
+              _curSongLyric[times[i+1]],
+              i < times.length - 2 ? _curSongLyric[times[i+2]] : '',
+            ];
+            break;
+          }
+        }
+      }
+      
+      int lineNum;
+      if (Console.rows - 4 - _window.curMaxMenuRow > 5) {
+        lineNum = 5;
+        startRow -= 2;
+      } else {
+        lineNum = 3;
+        lyrics = lyrics.getRange(1, 4).toList();
+        startRow -= 1;
+      }
+
+      for (var i = 0; i < lineNum; i++) {
+        Console.moveCursor(row: startRow + i, column: _window.startColumn + 2);
+        Console.eraseLine(2);
+        if (i == (lineNum / 2).floor()) {
+          if (_curSongLyric != null && _curSongLyric.isNotEmpty) {
+            Console.write(ColorText().setColor(_window.primaryColor).text(lyrics[i]).toString());
+          } else {
+            Console.write(ColorText().gray(lyrics[i]).toString());
+          }
+        } else {
+          Console.write(ColorText().gray(lyrics[i]).toString());
+        }
+      }
+    }
+
+
 
     // 歌曲名
     Console.moveCursor(row: Console.rows - 3, column: _window.startColumn);
@@ -430,6 +487,7 @@ class MainUI {
     };
     (await _player).playWithoutList(songUrl['url']);
     _curMusicInfo.setId(songId);
+    _curSongLyric = await getLyric(songId);
     var duration = 0;
     if (_playlist[_curSongIndex].containsKey('duration')) {
       duration = _playlist[_curSongIndex]['duration'];

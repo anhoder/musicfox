@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:colorful_cmd/component.dart';
 import 'package:colorful_cmd/utils.dart';
 import 'package:console/console.dart';
@@ -151,7 +153,10 @@ Future<Map<int, String>> getLyric(int songId) async {
         if (left < 0 && right < 0) break;
         var time = str.substring(left + 1, right).split(':');
         if (time.length > 1 && time[0] != '' && time[1] != '') {
-          var millseconds = (int.parse(time[0]) * 60000 + double.parse(time[1]) * 1000).toInt();
+          var minutes = int.tryParse(time[0]);
+          var seconds = double.tryParse(time[1]);
+          if (minutes == null || seconds == null) return;
+          var millseconds = (minutes * 60000 + seconds * 1000).toInt();
           res[millseconds] = item.substring(last + 1);
         }
         start = right + 1;
