@@ -181,9 +181,9 @@ void signin(NotifierProxy notifier) {
     if (response == null) return;
     if (response['code'] == 200) {
       notifier.send(
-        '手机端签到成功', 
+        '获得${response['point']}云贝', 
         title: 'MusicFox', 
-        subtitle: '获得${response['point']}云贝', 
+        subtitle: '手机端签到成功', 
         groupID: 'musicfox-mobile-sign', 
         openURL: 'https://github.com/AlanAlbert/musicfox',
         appIcon: avatar
@@ -196,9 +196,9 @@ void signin(NotifierProxy notifier) {
     if (response == null) return;
     if (response['code'] == 200) {
       notifier.send(
-        'PC端签到成功', 
+        '获得${response['point']}云贝', 
         title: 'MusicFox', 
-        subtitle: '获得${response['point']}云贝', 
+        subtitle: 'PC端签到成功', 
         groupID: 'musicfox-pc-sign', 
         openURL: 'https://github.com/AlanAlbert/musicfox',
         appIcon: avatar

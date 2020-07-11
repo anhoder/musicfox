@@ -152,11 +152,144 @@ class MainUI {
     Keys.bindKey(KeyName.SPACE).listen(play);
     Keys.bindKey('[').listen((_) => preSong());
     Keys.bindKey(']').listen((_) => nextSong());
+    Keys.bindKey(',').listen((_) => likePlayingSong());
+    Keys.bindKey('<').listen((_) => likeSelectedSong());
+    Keys.bindKey('.').listen((_) => likePlayingSong(isLike: false));
+    Keys.bindKey('>').listen((_) => likeSelectedSong(isLike: false));
+    Keys.bindKey('w').listen((_) => quitAndClear());
+    Keys.bindKey('-').listen((_) => downVolume());
+    Keys.bindKey('=').listen((_) => upVolumne());
+  }
+
+  /// 调小声音
+  Future<void> downVolume() async {
+    var player = await _player;
+    player.downVolume();
+  }
+
+  /// 调大声音
+  Future<void> upVolumne() async {
+    var player = await _player;
+    player.upVolumne();
+  }
+
+  /// trash 播放中的私人FM
+  /// TODO 待优化
+  Future<void> trashPlayingFmSong() async {
+    if (_curMenuContent.getMenuId() != PersonalFm().getMenuId() || 
+      _playlist == null || 
+      _curSongIndex > _playlist.length - 1) return;
+
+    Map curSong = _playlist[_curSongIndex];
+    if (curSong == null || !curSong.containsKey('id')) return;
+
+    var song = request.Song();
+
+    await song.trashFMSong(curSong['id']);
+  }
+
+  /// trash 选中的私人FM
+  /// TODO 待优化
+  Future<void> trashSelectedFmSong() async {
+    if (_curMenuContent.getMenuId() != PersonalFm().getMenuId() || 
+      _window.pageData == null || 
+      _window.selectIndex > _window.pageData.length - 1) return;
+
+    Map selectedSong = _window.pageData[_window.selectIndex];
+    if (selectedSong == null || !selectedSong.containsKey('id')) return;
+
+    var song = request.Song();
+
+    await song.trashFMSong(selectedSong['id']);
+  }
+
+  /// 喜欢正在播放的歌曲
+  Future<void> likePlayingSong({bool isLike = true}) async {
+    if (_playlist == null || _curSongIndex > _playlist.length - 1) return;
+    Map curSong = _playlist[_curSongIndex];
+    
+    var cache = CacheFactory.produce();
+    Map user = cache.get('user');
+    if (user == null) return;
+
+    await likeSong(curSong, isLike: isLike);
+  }
+
+  /// 喜欢选中的歌曲
+  Future<void> likeSelectedSong({bool isLike = true}) async {
+    if (_window.pageData == null || _window.selectIndex > _window.pageData.length - 1) return;
+    Map selectedSong = _window.pageData[_window.selectIndex];
+    if (!_curMenuContent.isPlayable || !selectedSong.containsKey('id')) return;
+    
+    var cache = CacheFactory.produce();
+    Map user = cache.get('user');
+    if (user == null) return;
+
+    await likeSong(selectedSong, isLike: isLike);
+  }
+
+  /// (不)喜欢歌曲
+  Future<void> likeSong(Map curSong, {bool isLike = true}) async {
+    if (curSong == null || !curSong.containsKey('id')) return;
+
+    var cache = CacheFactory.produce();
+    Map user = cache.get('user');
+    if (user == null) return;
+
+    var song = request.Song();
+    Map response = await song.like(curSong['id'], isLike: isLike);
+    if (response == null || !response.containsKey('code') || response['code'] != 200) return;
+
+    var avatar = '';
+    if (user.containsKey('avatar')) {
+      avatar = user['avatar'];
+    }
+
+    String contentImage;
+    if (curSong.containsKey('album')) {
+      if (curSong['album'].containsKey('blurPicUrl') && curSong['album']['blurPicUrl'] != '') {
+        contentImage = curSong['album']['blurPicUrl'];
+      } else if (curSong['album'].containsKey('picUrl') && curSong['album']['picUrl'] != '') {
+        contentImage = curSong['album']['picUrl'];
+      }
+    } else if (curSong.containsKey('al')) {
+      if (curSong['al'].containsKey('blurPicUrl') && curSong['al']['blurPicUrl'] != '') {
+        contentImage = curSong['al']['blurPicUrl'];
+      } else if (curSong['al'].containsKey('picUrl') && curSong['al']['picUrl'] != '') {
+        contentImage = curSong['al']['picUrl'];
+      }
+    }
+
+    _notifier.send(
+      '${curSong['name'] ?? ''}', 
+      title: 'MusicFox', 
+      subtitle: isLike ? '已添加到喜欢' : '已从喜欢中移除', 
+      groupID: 'musicfox', 
+      openURL: 'https://github.com/AlanAlbert/musicfox',
+      appIcon: avatar,
+      contentImage: contentImage
+    );
   }
 
   /// 退出
   void quit(WindowUI ui) {
     if (_playerContainer != null) _playerContainer.quit();
+  }
+
+  /// 退出并清理用户信息
+  void quitAndClear() {
+    Console.showCursor();
+    _window.close();
+    Console.resetAll();
+    Console.eraseDisplay();
+    var cookie = Directory(request.Request.cookieDir);
+    if (cookie.existsSync()) {
+      cookie.deleteSync(recursive: true);
+    }
+    var cache = CacheFactory.produce();
+    cache.clear();
+    quit(_window);
+    exit(0);
   }
 
   /// 显示完欢迎界面后
@@ -473,7 +606,8 @@ class MainUI {
       groupID: 'musicfox', 
       openURL: 'https://github.com/AlanAlbert/musicfox',
       appIcon: avatar,
-      contentImage: contentImage);
+      contentImage: contentImage
+    );
   }
 
   /// 播放指定音乐
