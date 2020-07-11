@@ -206,7 +206,7 @@ class MainUI {
       }
 
       for (var i = 0; i < lineNum; i++) {
-        Console.moveCursor(row: startRow + i);
+        Console.moveCursor(row: startRow + i, column: 0);
         Console.write('\r');
         for (var j = 0; j < _window.startColumn + 2; j++) {
           Console.write(' ');
