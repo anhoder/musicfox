@@ -1,7 +1,6 @@
 import 'package:colorful_cmd/component.dart';
 import 'package:colorful_cmd/utils.dart';
 import 'package:console/console.dart';
-import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
 
 Future<Map> search(WindowUI ui, int type, String menu) async {
@@ -24,8 +23,6 @@ Future<Map> search(WindowUI ui, int type, String menu) async {
 
   var search = Search();
   var response = await search.search(keywords, type: type);
-
-  response = validateResponse(ui, response);
 
   ui.earseMenu();
 

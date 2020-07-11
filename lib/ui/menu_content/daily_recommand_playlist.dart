@@ -27,13 +27,16 @@ class DailyRecommandPlaylist implements IMenuContent {
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
     if (_playlists == null || _playlists.isEmpty) {
-      await checkLogin(ui);
+      var loginStatus = await checkLogin(ui);
+      if (!loginStatus) return null;
       
       var playlist = Playlist();
       Map response = await playlist.getDailyRecommendPlaylists();
       response = validateResponse(ui, response);
+      if (response == null) return null;
       if (response['code'] == 301) {
-        await login(ui);
+        loginStatus = await login(ui);
+        if (!loginStatus) return null;
         return getMenus(ui);
       }
 

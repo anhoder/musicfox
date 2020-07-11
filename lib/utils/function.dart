@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:colorful_cmd/component.dart';
 import 'package:colorful_cmd/utils.dart';
 import 'package:console/console.dart';
@@ -8,10 +6,11 @@ import 'package:musicfox/ui/login.dart';
 import 'package:netease_music_request/request.dart';
 
 /// 检查是否登录，未登录调起登录
-Future<void> checkLogin(WindowUI ui) async {
+Future<bool> checkLogin(WindowUI ui) async {
   var cache = CacheFactory.produce();
   var user = cache.get('user');
-  if (user == null) await login(ui);
+  if (user == null) return await login(ui);
+  return true;
 }
 
 /// 验证响应
@@ -19,13 +18,13 @@ Map validateResponse(WindowUI ui, Map response) {
   if (response['code'] == 400) {
     ui.earseMenu();
     Console.moveCursor(row: ui.startRow, column: ui.startColumn);
-    Console.write(ColorText().darkRed('输入错误').toString());
+    Console.write(ColorText().gold('你到底要啥玩意(╯▔皿▔)╯').toString());
     return null;
   } else {
     if (response['code'] >= 500) {
       ui.earseMenu();
       Console.moveCursor(row: ui.startRow, column: ui.startColumn);
-      Console.write(ColorText().darkRed(response['msg'] ?? '').toString());
+      Console.write(ColorText().gray('服务器拍了拍你的脑袋，说：“').darkRed('${response['msg'] ?? ''}').gray('”').toString());
       return null;
     }
   }

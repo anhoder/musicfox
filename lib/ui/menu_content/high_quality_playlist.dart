@@ -26,6 +26,7 @@ class HighQualityPlaylist implements IMenuContent {
     var playlist = Playlist();
     Map response = await playlist.getQualityPlaylists();
     response = validateResponse(ui, response);
+    if (response == null) return null;
 
     var playlists = response.containsKey('playlists') ? response['playlists'] : [];
     ui.pageData = playlists;

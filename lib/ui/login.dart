@@ -5,7 +5,7 @@ import 'package:musicfox/cache/i_cache.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
 
-Future<void> login(WindowUI ui) async {
+Future<bool> login(WindowUI ui) async {
   ui.menuTitle = '用户登录（邮箱或手机号）';
   ui.displayMenuTitle();
   
@@ -45,11 +45,13 @@ Future<void> login(WindowUI ui) async {
 
   response = validateResponse(ui, response);
 
+  if (response == null) return false;
+
   if (response != null && response['code'] != 200) {
     ui.earseMenu();
     Console.moveCursor(row: ui.startRow, column: ui.startColumn);
-    Console.write(ColorText().darkRed('账号或密码错误').toString());
-    return;
+    Console.write(ColorText().gray('你是个好人，但我们不合适(╬▔皿▔)凸' ).darkRed('(账号或密码错了').toString());
+    return false;
   }
 
   var cache = CacheFactory.produce();
@@ -62,4 +64,6 @@ Future<void> login(WindowUI ui) async {
   });
 
   ui.earseMenu();
+
+  return true;
 }

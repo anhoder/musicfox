@@ -22,13 +22,16 @@ class DailyRecommendSongs implements IMenuContent{
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
     if (_songs == null || _songs.isEmpty) {
-      await checkLogin(ui);
+      var loginStatus = await checkLogin(ui);
+      if (!loginStatus) return null;
       
       var song = Song();
       Map response = await song.getRecommendSongs();
       response = validateResponse(ui, response);
+      if (response == null) return null;
       if (response['code'] == 301) {
-        await login(ui);
+        loginStatus = await login(ui);
+        if (!loginStatus) return null;
         return getMenus(ui);
       }
 

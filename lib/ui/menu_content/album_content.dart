@@ -29,6 +29,7 @@ class AlbumContent implements IMenuContent {
       var album = Album();
       Map response = await album.getAlbum(_albumId);
       response = validateResponse(ui, response);
+      if (response == null) return null;
 
       _songs = response.containsKey('songs') ? response['songs'] : [];
     }

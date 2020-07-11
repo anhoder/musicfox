@@ -31,6 +31,7 @@ class ArtistAlbums implements IMenuContent {
     var artist = Artist();
     Map response = await artist.getAlbums(_artistId);
     response = validateResponse(ui, response);
+    if (response == null) return null;
 
     var albums = response.containsKey('hotAlbums') ? response['hotAlbums'] : [];
     ui.pageData = albums;

@@ -26,6 +26,7 @@ class HotArtist implements IMenuContent {
     var artist = request.Artist();
     Map response = await artist.getHotArtists();
     response = validateResponse(ui, response);
+    if (response == null) return null;
 
     var artists = response.containsKey('artists') ? response['artists'] : [];
     ui.pageData = artists;

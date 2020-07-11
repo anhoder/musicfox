@@ -20,12 +20,16 @@ class Cloud implements IMenuContent {
 
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
-    await checkLogin(ui);
+    var loginStatus = await checkLogin(ui);
+    if (!loginStatus) return null;
+
     var artist = request.Cloud();
     Map response = await artist.getCloud();
     response = validateResponse(ui, response);
+    if (response == null) return null;
     if (response['code'] == 301) {
-      await login(ui);
+      loginStatus = await login(ui);
+      if (!loginStatus) return null;
       return getMenus(ui);
     }
 

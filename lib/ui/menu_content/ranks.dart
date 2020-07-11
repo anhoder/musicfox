@@ -26,6 +26,7 @@ class Ranks implements IMenuContent {
     var playlist = Playlist();
     Map response = await playlist.getRanks();
     response = validateResponse(ui, response);
+    if (response == null) return null;
 
     var ranks = response.containsKey('list') ? response['list'] : [];
     ui.pageData = ranks;
