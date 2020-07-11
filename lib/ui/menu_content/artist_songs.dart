@@ -27,6 +27,7 @@ class ArtistSongs implements IMenuContent {
     var artist = Artist();
     Map response = await artist.getSongs(_artistId);
     response = validateResponse(ui, response);
+    if (response == null) return null;
 
     var songs = response.containsKey('hotSongs') ? response['hotSongs'] : [];
     ui.pageData = songs;

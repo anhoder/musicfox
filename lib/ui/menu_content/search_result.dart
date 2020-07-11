@@ -1,3 +1,4 @@
+import 'package:colorful_cmd/utils.dart';
 import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:colorful_cmd/component.dart';
 import 'package:musicfox/ui/menu_content/album_content.dart';
@@ -35,7 +36,7 @@ class SearchResult implements IMenuContent {
   Future<BottomOutContent> bottomOut(WindowUI ui) => null;
 
   @override
-  Future<String> getContent(WindowUI ui) => null;
+  Future<String> getContent(WindowUI ui) => Future.value(ColorText().gold('没找到喜欢你的人 /(ㄒoㄒ)/~~').toString());
 
   @override
   Future<IMenuContent> getMenuContent(WindowUI ui, int index) {
@@ -56,9 +57,11 @@ class SearchResult implements IMenuContent {
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
     var response = await search(ui, _type, _menu);
+    response = validateResponse(ui, response);
+    if (response == null) return null;
     Map result = response['result'];
 
-    if (!result.containsKey(SEARCH_TYPE_KEYS[_type])) return [];
+    if (result == null || !result.containsKey(SEARCH_TYPE_KEYS[_type])) return null;
     _data = result[SEARCH_TYPE_KEYS[_type]];
     ui.pageData = _data;
 

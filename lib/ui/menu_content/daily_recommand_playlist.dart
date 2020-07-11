@@ -1,5 +1,6 @@
 import 'package:colorful_cmd/component.dart';
 import 'package:musicfox/ui/bottom_out_content.dart';
+import 'package:musicfox/ui/login.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/ui/menu_content/playlist_songs.dart';
 import 'package:musicfox/utils/function.dart';
@@ -26,11 +27,18 @@ class DailyRecommandPlaylist implements IMenuContent {
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
     if (_playlists == null || _playlists.isEmpty) {
-      await checkLogin(ui);
+      var loginStatus = await checkLogin(ui);
+      if (!loginStatus) return null;
       
       var playlist = Playlist();
       Map response = await playlist.getDailyRecommendPlaylists();
       response = validateResponse(ui, response);
+      if (response == null) return null;
+      if (response['code'] == 301) {
+        loginStatus = await login(ui);
+        if (!loginStatus) return null;
+        return getMenus(ui);
+      }
 
       _playlists = response.containsKey('recommend') ? response['recommend'] : [];
     }

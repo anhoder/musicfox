@@ -19,6 +19,7 @@ class PersonalFm implements IMenuContent {
     var song = Song();
     Map response = await song.getPersonalFMSongs();
     response = validateResponse(ui, response);
+    if (response == null) return null;
 
     var songs = response.containsKey('data') ? response['data'] : [];
 
@@ -36,11 +37,10 @@ class PersonalFm implements IMenuContent {
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
     if (_songs == null || _songs.isEmpty) {
-      await checkLogin(ui);
-      
       var song = Song();
       Map response = await song.getPersonalFMSongs();
       response = validateResponse(ui, response);
+      if (response == null) return null;
 
       _songs = response.containsKey('data') ? response['data'] : [];
     }

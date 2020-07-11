@@ -26,6 +26,7 @@ class NewestAlbums implements IMenuContent {
       var album = Album();
       Map response = await album.getHotNewAlbums();
       response = validateResponse(ui, response);
+      if (response == null) return null;
 
       _albums = response.containsKey('albums') ? response['albums'] : [];
     }

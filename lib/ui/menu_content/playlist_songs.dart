@@ -33,9 +33,11 @@ class PlaylistSongs implements IMenuContent {
       var playlist = Playlist();
       Map response = await playlist.getPlaylistDetail(_playlistId);
       response = validateResponse(ui, response);
+      if (response == null) return null;
 
       List trackIds = response.containsKey('playlist') ? (response['playlist'].containsKey('trackIds') ? response['playlist']['trackIds'] : []) : [];
       var songIds = <int>[];
+      if (trackIds.length >= 1000) trackIds = trackIds.getRange(0, 1000).toList();
       trackIds.forEach((item) {
         songIds.add(item['id']);
       });

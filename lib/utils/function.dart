@@ -6,10 +6,11 @@ import 'package:musicfox/ui/login.dart';
 import 'package:netease_music_request/request.dart';
 
 /// 检查是否登录，未登录调起登录
-Future<void> checkLogin(WindowUI ui) async {
+Future<bool> checkLogin(WindowUI ui) async {
   var cache = CacheFactory.produce();
   var user = cache.get('user');
-  if (user == null) await login(ui);
+  if (user == null) return await login(ui);
+  return true;
 }
 
 /// 验证响应
@@ -17,13 +18,13 @@ Map validateResponse(WindowUI ui, Map response) {
   if (response['code'] == 400) {
     ui.earseMenu();
     Console.moveCursor(row: ui.startRow, column: ui.startColumn);
-    Console.write(ColorText().darkRed('输入错误').toString());
+    Console.write(ColorText().gold('你到底要啥玩意(╯▔皿▔)╯').toString());
     return null;
   } else {
     if (response['code'] >= 500) {
       ui.earseMenu();
       Console.moveCursor(row: ui.startRow, column: ui.startColumn);
-      Console.write(ColorText().darkRed(response['msg'] ?? '').toString());
+      Console.write(ColorText().gray('服务器拍了拍你的脑袋，说：“').darkRed('${response['msg'] ?? ''}').gray('”').toString());
       return null;
     }
   }
@@ -133,8 +134,75 @@ List<String> getListFromRanks(List ranks) {
 }
 
 /// 获取歌词
-Future<Map<String, String>> getLyric(int songId) async {
+Future<Map<int, String>> getLyric(int songId) async {
   var song = Song();
-  var response = await song.getLyric(songId);
-  
+  Map response = await song.getLyric(songId);
+  if (response.containsKey('lrc') && response['lrc'].containsKey('lyric') && response['lrc']['lyric'] != null) {
+    String lyric = response['lrc']['lyric'];
+    var res = <int, String>{};
+    lyric.split('\n').forEach((item) {
+      var start = 0;
+      var last = item.lastIndexOf(']');
+      if (last < 0) return;
+      var str = item;
+      while (start < last) {
+        str = str.substring(start);
+        var left = str.indexOf('[');
+        var right = str.indexOf(']');
+        if (left < 0 && right < 0) break;
+        var time = str.substring(left + 1, right).split(':');
+        if (time.length > 1 && time[0] != '' && time[1] != '') {
+          var minutes = int.tryParse(time[0]);
+          var seconds = double.tryParse(time[1]);
+          if (minutes == null || seconds == null) return;
+          var millseconds = (minutes * 60000 + seconds * 1000).toInt();
+          res[millseconds] = item.substring(last + 1).trim();
+        }
+        start = right + 1;
+      }
+    });
+    return res;
+  }
+  return null;
+}
+
+/// 签到
+void signin(NotifierProxy notifier) {
+  var cache = CacheFactory.produce();
+  Map user = cache.get('user');
+  var avatar = '';
+  if (user != null && user.containsKey('avatar')) {
+    avatar = user['avatar'];
+  }
+
+  var userRequest = User();
+  // 手机签到
+  userRequest.sign(type: 0).then((response) {
+    if (response == null) return;
+    if (response['code'] == 200) {
+      notifier.send(
+        '手机端签到成功', 
+        title: 'MusicFox', 
+        subtitle: '获得${response['point']}点经验', 
+        groupID: 'musicfox-mobile-sign', 
+        openURL: 'https://github.com/AlanAlbert/musicfox',
+        appIcon: avatar
+      );
+    }
+  });
+
+  // PC签到
+  userRequest.sign(type: 1).then((response) {
+    if (response == null) return;
+    if (response['code'] == 200) {
+      notifier.send(
+        'PC端签到成功', 
+        title: 'MusicFox', 
+        subtitle: '获得${response['point']}点经验', 
+        groupID: 'musicfox-pc-sign', 
+        openURL: 'https://github.com/AlanAlbert/musicfox',
+        appIcon: avatar
+      );
+    }
+  });
 }
