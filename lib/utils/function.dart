@@ -183,7 +183,7 @@ void signin(NotifierProxy notifier) {
       notifier.send(
         '手机端签到成功', 
         title: 'MusicFox', 
-        subtitle: '获得${response['point']}点经验', 
+        subtitle: '获得${response['point']}云贝', 
         groupID: 'musicfox-mobile-sign', 
         openURL: 'https://github.com/AlanAlbert/musicfox',
         appIcon: avatar
@@ -198,7 +198,7 @@ void signin(NotifierProxy notifier) {
       notifier.send(
         'PC端签到成功', 
         title: 'MusicFox', 
-        subtitle: '获得${response['point']}点经验', 
+        subtitle: '获得${response['point']}云贝', 
         groupID: 'musicfox-pc-sign', 
         openURL: 'https://github.com/AlanAlbert/musicfox',
         appIcon: avatar
