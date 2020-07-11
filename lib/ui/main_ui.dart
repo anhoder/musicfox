@@ -110,8 +110,6 @@ class MainUI {
       _playerContainer.listenProgress((progress) => _curProgress.setValue(progress['cur'], progress['left']));
       _playerContainer.listenStatus((status) async {
         _playerStatus.setStatus(status);
-        _watch.stop();
-        _watch.reset();
         displayPlayerUI();
         if (!Platform.isWindows && _playerStatus.status == Status.STOPPED) {
           Timer(Duration(milliseconds: 1500), () async {
