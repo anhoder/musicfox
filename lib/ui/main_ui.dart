@@ -206,8 +206,11 @@ class MainUI {
       }
 
       for (var i = 0; i < lineNum; i++) {
-        Console.moveCursor(row: startRow + i, column: _window.startColumn + 2);
-        Console.eraseLine(2);
+        Console.moveCursor(row: startRow + i);
+        Console.write('\r');
+        for (var j = 0; j < _window.startColumn + 2; j++) {
+          Console.write(' ');
+        }
         if (i == (lineNum / 2).floor()) {
           if (_curSongLyric != null && _curSongLyric.isNotEmpty) {
             Console.write(ColorText().setColor(_window.primaryColor).text(lyrics[i]).toString());
@@ -216,6 +219,9 @@ class MainUI {
           }
         } else {
           Console.write(ColorText().gray(lyrics[i]).toString());
+        }
+        for (var j = _window.startColumn + 2 + lyrics[i].length; j < Console.columns; j++) {
+          Console.write(' ');
         }
       }
     }
