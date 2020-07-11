@@ -165,3 +165,44 @@ Future<Map<int, String>> getLyric(int songId) async {
   }
   return null;
 }
+
+/// 签到
+void signin(NotifierProxy notifier) {
+  var cache = CacheFactory.produce();
+  Map user = cache.get('user');
+  var avatar = '';
+  if (user != null && user.containsKey('avatar')) {
+    avatar = user['avatar'];
+  }
+
+  var userRequest = User();
+  // 手机签到
+  userRequest.sign(type: 0).then((response) {
+    if (response == null) return;
+    if (response['code'] == 200) {
+      notifier.send(
+        '手机端签到成功', 
+        title: 'MusicFox', 
+        subtitle: '获得${response['point']}点经验', 
+        groupID: 'musicfox-mobile-sign', 
+        openURL: 'https://github.com/AlanAlbert/musicfox',
+        appIcon: avatar
+      );
+    }
+  });
+
+  // PC签到
+  userRequest.sign(type: 1).then((response) {
+    if (response == null) return;
+    if (response['code'] == 200) {
+      notifier.send(
+        'PC端签到成功', 
+        title: 'MusicFox', 
+        subtitle: '获得${response['point']}点经验', 
+        groupID: 'musicfox-pc-sign', 
+        openURL: 'https://github.com/AlanAlbert/musicfox',
+        appIcon: avatar
+      );
+    }
+  });
+}

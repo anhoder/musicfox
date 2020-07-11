@@ -91,13 +91,14 @@ class MainUI {
     _curProgress = MusicProgress();
     _playerStatus = PlayerStatus();
     _watch = Stopwatch();
-    _notifier = NotifierProxy(mac: [TerminalNotifier(), AppleScriptNotifier()], linux: [NotifySendNotifier()]);
+    _notifier = NotifierProxy(mac: [TerminalNotifier(), AppleScriptNotifier()], linux: [NotifySendNotifier()], win: [NotifuNotifier()]);
     var cache = CacheFactory.produce();
     Map progress = cache.get('progress');
     if (progress == null) return;
     _curSongIndex = progress.containsKey('curSongIndex') ? progress['curSongIndex'] : 0;
     _playlist = progress.containsKey('playlist') ? progress['playlist'] : [];
     _playingMenuId = progress.containsKey('playingMenuId') ? progress['playingMenuId'] : null;
+    signin(_notifier);
   }
 
   Future<Player> get _player async {
