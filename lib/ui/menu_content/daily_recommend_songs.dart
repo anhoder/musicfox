@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:colorful_cmd/component.dart';
 import 'package:musicfox/ui/bottom_out_content.dart';
+import 'package:musicfox/ui/login.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
@@ -24,6 +27,10 @@ class DailyRecommendSongs implements IMenuContent{
       var song = Song();
       Map response = await song.getRecommendSongs();
       response = validateResponse(ui, response);
+      if (response['code'] == 301) {
+        await login(ui);
+        return getMenus(ui);
+      }
 
       _songs = response.containsKey('recommend') ? response['recommend'] : [];
     }

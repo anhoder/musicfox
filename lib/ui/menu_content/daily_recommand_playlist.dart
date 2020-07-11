@@ -1,5 +1,6 @@
 import 'package:colorful_cmd/component.dart';
 import 'package:musicfox/ui/bottom_out_content.dart';
+import 'package:musicfox/ui/login.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/ui/menu_content/playlist_songs.dart';
 import 'package:musicfox/utils/function.dart';
@@ -31,6 +32,10 @@ class DailyRecommandPlaylist implements IMenuContent {
       var playlist = Playlist();
       Map response = await playlist.getDailyRecommendPlaylists();
       response = validateResponse(ui, response);
+      if (response['code'] == 301) {
+        await login(ui);
+        return getMenus(ui);
+      }
 
       _playlists = response.containsKey('recommend') ? response['recommend'] : [];
     }

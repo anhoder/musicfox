@@ -152,8 +152,8 @@ class MainUI {
   }
 
   /// 退出
-  void quit(WindowUI ui) async {
-    (await _player).quit();
+  void quit(WindowUI ui) {
+    if (_playerContainer != null) _playerContainer.quit();
   }
 
   /// 显示完欢迎界面后
