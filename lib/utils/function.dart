@@ -156,7 +156,7 @@ Future<Map<int, String>> getLyric(int songId) async {
           var seconds = double.tryParse(time[1]);
           if (minutes == null || seconds == null) return;
           var millseconds = (minutes * 60000 + seconds * 1000).toInt();
-          res[millseconds] = item.substring(last + 1);
+          res[millseconds] = item.substring(last + 1).trim();
         }
         start = right + 1;
       }
