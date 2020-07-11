@@ -347,7 +347,7 @@ class MainUI {
         }
         if (i == (lineNum / 2).floor()) {
           if (_curSongLyric != null && _curSongLyric.isNotEmpty) {
-            Console.write(ColorText().setColor(_window.primaryColor).text(lyrics[i]).toString());
+            Console.write(ColorText().lightCyan(lyrics[i]).toString());
           } else {
             Console.write(ColorText().gray(lyrics[i]).toString());
           }
