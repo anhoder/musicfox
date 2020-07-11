@@ -654,7 +654,7 @@ class MainUI {
       rainbow: true);
     _playerProgress.update(0);
     if (_playerTimer != null) _playerTimer.cancel();
-    _playerTimer = Timer.periodic(Duration(milliseconds: 100), (timer) async {
+    _playerTimer = Timer.periodic(Duration(milliseconds: 400), (timer) async {
       displayPlayerUI();
       if (_watch.elapsedMilliseconds >= _curMusicInfo.duration.inMilliseconds) {
         timer.cancel();
