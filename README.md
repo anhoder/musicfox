@@ -1,5 +1,129 @@
-A sample command-line application with an entrypoint in `bin/`, library code
-in `lib/`, and example unit test in `test/`.
+# musicfox
 
-Created from templates made available by Stagehand under a BSD-style
-[license](https://github.com/dart-lang/stagehand/blob/master/LICENSE).
+musicfox是一款使用Dart编写的网易云音乐命令行程序。
+
+## 感谢
+
+感谢以下项目及其贡献者们（不限于）：
+
+* [musicbox](https://github.com/darknessomi/musicbox)
+* [NeteaseCloudMusicApi](https://github.com/Binaryify/NeteaseCloudMusicApi)
+* [console.dart](https://github.com/DirectMyFile/console.dart)
+
+## 预览
+
+![欢迎界面](./preview/preview0.png)
+![主界面1](./preview/preview1.png)
+![主界面2](./preview/preview2.png)
+
+
+## 安装
+
+**必须先安装mpg123**
+
+### Mac
+
+提供两种方式安装：
+
+1. 直接下载[Mac可执行文件](./bin/musicfox.mac)，在iTerm或Terminal中打开
+2. 使用brew安装: `brew install musicfox` 
+
+Mac下默认使用AppleScript发送通知。如下：
+
+![AppleScript](./preview/AppleScript.png)
+
+
+如果想要更好的通知体验，可以安装`terminal-notifier`:
+
+```sh
+brew install terminal-notifier
+```
+
+效果如下：
+
+![terminal-notifier](./preview/terminal-notifier.png)
+
+### Linux
+
+提供两种方式安装：
+
+1. 直接下载[Linux可执行文件](./bin/musicfox.ubuntu)，在终端中执行。
+2. 使用apt安装：`sudo apt install musicfox`
+
+> 本人没有Linux系统，该执行文件是在WSL2(Ubuntu 2004)下打包的，不保证其他Linux系统也能正常使用
+
+Linux可以安装`libnotify-bin`来使用通知功能（未经测试）
+
+### Windows
+
+下载[Windows可执行文件](./bin/musicfox.win)，在命令行中运行即可。
+
+> 推荐使用Windows Terminal
+
+Windows下可以安装`notifu`实现通知，体验不太好（没找到其他更好的通知工具）
+
+**Windows下存在几个已知问题，暂时没有解决方法：**
+1. 暂停时会延迟几秒，播放时不会延迟
+2. 登录或搜索输入时，会吞掉第一个字符
+3. 上、下、左、右及ESC键无法监听，只能使用字母代替这些操作
+
+## 使用
+
+```sh
+$ musicfox
+```
+
+| 按键 | 作用 |
+| --- | --- |
+| h/H/LEFT | 左 |
+| l/L/RIGHT | 右 |
+| k/K/UP | 上 |
+| j/J/DOWN | 下 |
+| q/Q | 退出 |
+| space | 暂停/播放 |
+| [ | 上一曲 |
+| ] | 下一曲 |
+| - | 减小音量 |
+| = | 加大音量 |
+| n/N/ENTER | 进入选中的菜单 |
+| b/B/ESC | 返回上级菜单 |
+| w/W | 退出并退出登录 |
+| p | 切换播放方式 |
+| P | 心动模式(仅在歌单中时有效) |
+| , | 喜欢当前播放歌曲 |
+| < | 喜欢当前选中歌曲 |
+| . | 当前播放歌曲移除出喜欢 |
+| > | 当前选中歌曲移除出喜欢 |
+| / | 标记当前播放歌曲为不喜欢 |
+| ? | 标记当前选中歌曲为不喜欢 |
+
+## TODO
+
+* [ ] 音乐电台
+
+## 伴生项目
+
+在该项目的开发过程中，我将一些通用的功能模块单独抽离出来，做成了几个伴生项目：
+
+* [mp3_player](https://github.com/AlanAlbert/mp3_player): dart命令行调用mpg123播放音乐
+* [colorful_cmd](https://github.com/AlanAlbert/colorful_cmd): 使用dart实现的一些命令行UI组件，如：WIndowUI命令行窗口应用UI、RainbowProgress彩虹进度条、NotifierProxy三大平台通知代理、ColorText颜色文本...
+* [netease_music_request](https://github.com/AlanAlbert/netease_music_request): Dart实现的网易云音乐接口库，使用Dio发起请求，CookieJar管理Cookie信息
+
+
+## 项目起因
+
+在开始这个项目的之前，其实是已经有一个基于命令行的网易云音乐项目的——[musicbox](https://github.com/darknessomi/musicbox)。
+
+我也使用它听了很长一段时间的歌了，其中还贡献过一些代码，修复几个小问题。那为什么还要重新造一个轮子呢？
+
+> 原因：
+> 1. musicbox有一些我特别想要的功能是没有的
+> 2. musicbox是使用python进行编写的，而我对python又并不是很熟悉，所以修改或者新增功能时比较麻烦
+
+基于以上，我重新开启了这个项目——[musicfox](https://github.com/AlanAlbert/musicfox)。
+
+### 为什么使用Dart
+
+1. Dart的语法极像Java，我本身也学过Java，因此学习成本较低；
+2. Dart可以将代码编译成能在三大平台（Windows、Linux、Mac）上直接运行的可执行程序。
+
