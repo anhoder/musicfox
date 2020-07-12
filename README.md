@@ -124,7 +124,7 @@ $ musicfox
 
 ## 项目起因
 
-在开始这个项目的之前，其实是已经有一个基于命令行的网易云音乐项目的——[musicbox](https://github.com/darknessomi/musicbox)。
+在开始这个项目的之前，其实是已经有一个基于命令行的网易云音乐项目——[musicbox](https://github.com/darknessomi/musicbox)。
 
 我也使用它听了很长一段时间的歌了，其中还贡献过一些代码，修复几个小问题。那为什么还要重新造一个轮子呢？
 
@@ -132,7 +132,7 @@ $ musicfox
 > 1. musicbox有一些我特别想要的功能是没有的
 > 2. musicbox是使用python进行编写的，而我对python又并不是很熟悉，所以修改或者新增功能时比较麻烦
 
-基于以上，我重新开启了这个项目——[musicfox](https://github.com/AlanAlbert/musicfox)。
+基于以上，我重新开启了这个项目。
 
 ### 为什么使用Dart
 
