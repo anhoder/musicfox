@@ -9,16 +9,19 @@ import 'package:mp3_player/audio_player.dart';
 import 'package:musicfox/cache/i_cache.dart';
 import 'package:musicfox/exception/response_exception.dart';
 import 'package:musicfox/lang/chinese.dart';
+import 'package:musicfox/ui/login.dart';
 import 'package:musicfox/ui/menu_content/albums.dart';
 import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:musicfox/ui/menu_content/cloud.dart';
 import 'package:musicfox/ui/menu_content/daily_recommand_playlist.dart';
 import 'package:musicfox/ui/menu_content/daily_recommend_songs.dart';
+import 'package:musicfox/ui/menu_content/help.dart';
 import 'package:musicfox/ui/menu_content/high_quality_playlist.dart';
 import 'package:musicfox/ui/menu_content/hot_artist.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/ui/menu_content/main_menu.dart';
 import 'package:musicfox/ui/menu_content/personal_fm.dart';
+import 'package:musicfox/ui/menu_content/playlist_songs.dart';
 import 'package:musicfox/ui/menu_content/ranks.dart';
 import 'package:musicfox/ui/menu_content/search_type.dart';
 import 'package:musicfox/ui/menu_content/user_playlists.dart';
@@ -40,6 +43,7 @@ final MENU_CONTENTS = <IMenuContent>[
   HighQualityPlaylist(),
   HotArtist(),
   Cloud(),
+  Help(),
 ];
 
 class MainUI {
@@ -55,6 +59,7 @@ class MainUI {
   final List<IMenuContent> _menuContentStack = [];
   IMenuContent _curMenuContent = MainMenu();
   PlaylistMode _playMode = PlaylistMode.ORDER;
+  bool _isIntelligence = false;
 
   // 歌词
   Map<int, String> _curSongLyric;
@@ -71,8 +76,9 @@ class MainUI {
 
   MainUI() {
     _window = WindowUI(
-      name: 'MusicFox', 
-      welcomeMsg: 'MUSICFOX', 
+      name: 'MusicFox',
+      welcomeMsg: 'MUSICFOX',
+      showHelp: false,
       menu: <String>[
         '每日推荐歌曲',
         '每日推荐歌单',
@@ -85,6 +91,7 @@ class MainUI {
         '热门歌手',
         '云盘',
         // '主播电台',
+        '帮助',
       ],
       defaultMenuTitle: '网易云音乐',
       enterMain: enterMain,
@@ -165,12 +172,53 @@ class MainUI {
     Keys.bindKey('<').listen((_) => likeSelectedSong());
     Keys.bindKey('.').listen((_) => likePlayingSong(isLike: false));
     Keys.bindKey('>').listen((_) => likeSelectedSong(isLike: false));
-    Keys.bindKey('w').listen((_) => quitAndClear());
+    Keys.bindKeys(['w', 'W']).listen((_) => quitAndClear());
     Keys.bindKey('-').listen((_) => downVolume());
     Keys.bindKey('=').listen((_) => upVolumne());
     Keys.bindKey('/').listen((_) => trashPlayingSong());
     Keys.bindKey('?').listen((_) => trashSelectedSong());
     Keys.bindKey('p').listen((_) => changePlayMode());
+    Keys.bindKey('P').listen((_) => intelligence());
+  }
+
+  /// 智能模式
+  Future<void> intelligence([bool reservePlaylist = false]) async {
+    if (!(_curMenuContent is PlaylistSongs)) return;
+    var curMenu = _curMenuContent as PlaylistSongs;
+    var playlistId = curMenu.playlistId;
+    if (_window.selectIndex > _window.pageData.length - 1) return;
+    Map selectedSong = _window.pageData[_window.selectIndex];
+    if (!selectedSong.containsKey('id')) return;
+    var loginStatus = await checkLogin(_window);
+    if (!loginStatus) return;
+
+    var playlist = request.Playlist();
+    Map response = await playlist.getIntelligenceList(playlistId, selectedSong['id']);
+    response = validateResponse(_window, response);
+    if (response['code'] == 301) {
+      loginStatus = await login(_window);
+      if (!loginStatus) return null;
+      return intelligence(reservePlaylist);
+    }
+    if (!response.containsKey('data') || response['data'] == null) return;
+
+    _isIntelligence = true;
+    var songs = [];
+    response['data'].forEach((song) {
+      if (!song.containsKey('songInfo')) return;
+      songs.add(song['songInfo']);
+    });
+    if (songs.isEmpty) return;
+
+    if (reservePlaylist) {
+      _playlist.addAll(songs);
+      _curSongIndex++;
+    } else {
+      _playlist = songs;
+      _curSongIndex = 0;
+    }
+    _playingMenuId = null;
+    await playSong(_playlist[_curSongIndex]['id']);
   }
 
   /// 改变播放方式
@@ -417,7 +465,7 @@ class MainUI {
 
     // 歌曲名
     Console.moveCursor(row: Console.rows - 3, column: _window.startColumn - 6);
-    var playMode = PLAY_MODE[_playMode];
+    var playMode = _isIntelligence ? '心动' : PLAY_MODE[_playMode];
     var status = _playerStatus.status == Status.PLAYING ? '♫  ♪ ♫  ♪' : '_ _ z Z Z';
     if (changeSong) {
       for (var i = 3; i > 0; i--) {
@@ -556,6 +604,7 @@ class MainUI {
     } else {
       _playingMenuId = _curMenuContent.getMenuId();
       _playlist = songs;
+      _isIntelligence = false;
       await playSong(songInfo['id']);
     }
   }
@@ -576,6 +625,9 @@ class MainUI {
   /// 下一曲
   Future<void> nextSong() async {
     if (_playlist == null || _curSongIndex >= _playlist.length - 1) {
+      if (_isIntelligence) {
+        await intelligence(true);
+      }
       var content = await getBottomOutContent();
       if (content != null) {
         if (content.appendMenus != null && content.appendMenus.isNotEmpty) {

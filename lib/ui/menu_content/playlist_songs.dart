@@ -6,7 +6,7 @@ import 'package:netease_music_request/request.dart';
 
 class PlaylistSongs implements IMenuContent {
 
-  int _playlistId;
+  int playlistId;
   List _songs;
 
   @override
@@ -16,8 +16,8 @@ class PlaylistSongs implements IMenuContent {
   bool get isResetPlaylist => false;
 
   PlaylistSongs(int playlistId) {
-    if (_playlistId != playlistId) _songs = null;
-    _playlistId = playlistId;
+    if (this.playlistId != playlistId) _songs = null;
+    this.playlistId = playlistId;
   }
 
   @override
@@ -28,10 +28,10 @@ class PlaylistSongs implements IMenuContent {
 
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
-    if (_playlistId == null) return [];
+    if (playlistId == null) return [];
     if (_songs == null) {
       var playlist = Playlist();
-      Map response = await playlist.getPlaylistDetail(_playlistId);
+      Map response = await playlist.getPlaylistDetail(playlistId);
       response = validateResponse(ui, response);
       if (response == null) return null;
 
@@ -58,6 +58,6 @@ class PlaylistSongs implements IMenuContent {
   Future<BottomOutContent> bottomOut(WindowUI ui) => null;
   
   @override
-  String getMenuId() => 'PlaylistSongs(${_playlistId})';
+  String getMenuId() => 'PlaylistSongs(${playlistId})';
 
 }

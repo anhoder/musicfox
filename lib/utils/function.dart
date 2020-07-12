@@ -15,6 +15,10 @@ Future<bool> checkLogin(WindowUI ui) async {
 
 /// 验证响应
 Map validateResponse(WindowUI ui, Map response) {
+  if (!(response['code'] is int)) {
+    response['code'] = int.tryParse(response['code']);
+  }
+  if (response['code'] == null) return null;
   if (response['code'] == 400) {
     ui.earseMenu();
     Console.moveCursor(row: ui.startRow, column: ui.startColumn);
