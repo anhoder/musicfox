@@ -4,8 +4,8 @@ musicfox是一款使用Dart编写的网易云音乐命令行程序。
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/AlanAlbert/musicfox)
 ![GitHub](https://img.shields.io/github/license/AlanAlbert/musicfox)
-![Last Tag](https://badgen.net/github/tag/alanalbert/musicfox)
-![GitHub last commit](https://badgen.net/github/last-commit/alanalbert/musicfox)
+![Last Tag](https://badgen.net/github/tag/AlanAlbert/musicfox)
+![GitHub last commit](https://badgen.net/github/last-commit/AlanAlbert/musicfox)
 
 ![GitHub stars](https://img.shields.io/github/stars/AlanAlbert/musicfox?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/AlanAlbert/musicfox?style=social)
