@@ -53,7 +53,13 @@ class MainUI {
   NotifierProxy _notifier;
   final List<IMenuContent> _menuContentStack = [];
   IMenuContent _curMenuContent = MainMenu();
+
+  // 歌词
   Map<int, String> _curSongLyric;
+  List<int> _sortedLyricTime;
+  int _curLyricIndex;
+  List<String> _curShowingLyrics;
+  bool _firstRenderLyric;
 
   // from player
   MusicInfo _curMusicInfo; 
@@ -159,6 +165,8 @@ class MainUI {
     Keys.bindKey('w').listen((_) => quitAndClear());
     Keys.bindKey('-').listen((_) => downVolume());
     Keys.bindKey('=').listen((_) => upVolumne());
+    Keys.bindKey('/').listen((_) => trashPlayingSong());
+    Keys.bindKey('?').listen((_) => trashSelectedSong());
   }
 
   /// 调小声音
@@ -173,34 +181,26 @@ class MainUI {
     player.upVolumne();
   }
 
-  /// trash 播放中的私人FM
-  /// TODO 待优化
-  Future<void> trashPlayingFmSong() async {
-    if (_curMenuContent.getMenuId() != PersonalFm().getMenuId() || 
-      _playlist == null || 
+  /// 标记为不喜欢
+  Future<void> trashPlayingSong() async {
+    if (_playlist == null || 
       _curSongIndex > _playlist.length - 1) return;
 
     Map curSong = _playlist[_curSongIndex];
     if (curSong == null || !curSong.containsKey('id')) return;
 
-    var song = request.Song();
-
-    await song.trashFMSong(curSong['id']);
+    await trashSong(curSong);
   }
 
-  /// trash 选中的私人FM
-  /// TODO 待优化
-  Future<void> trashSelectedFmSong() async {
-    if (_curMenuContent.getMenuId() != PersonalFm().getMenuId() || 
-      _window.pageData == null || 
+  /// 标记为不喜欢
+  Future<void> trashSelectedSong() async {
+    if (_window.pageData == null || 
       _window.selectIndex > _window.pageData.length - 1) return;
 
     Map selectedSong = _window.pageData[_window.selectIndex];
     if (selectedSong == null || !selectedSong.containsKey('id')) return;
 
-    var song = request.Song();
-
-    await song.trashFMSong(selectedSong['id']);
+    await trashSong(selectedSong);
   }
 
   /// 喜欢正在播放的歌曲
@@ -271,6 +271,49 @@ class MainUI {
     );
   }
 
+  /// 不喜欢私人FM推荐的这首歌
+  Future<void> trashSong(Map curSong) async {
+    if (curSong == null || !curSong.containsKey('id')) return;
+
+    var cache = CacheFactory.produce();
+    Map user = cache.get('user');
+    if (user == null) return;
+
+    var song = request.Song();
+    Map response = await song.trashFMSong(curSong['id']);
+    if (response == null || !response.containsKey('code') || response['code'] != 200) return;
+
+    var avatar = '';
+    if (user.containsKey('avatar')) {
+      avatar = user['avatar'];
+    }
+
+    String contentImage;
+    if (curSong.containsKey('album')) {
+      if (curSong['album'].containsKey('blurPicUrl') && curSong['album']['blurPicUrl'] != '') {
+        contentImage = curSong['album']['blurPicUrl'];
+      } else if (curSong['album'].containsKey('picUrl') && curSong['album']['picUrl'] != '') {
+        contentImage = curSong['album']['picUrl'];
+      }
+    } else if (curSong.containsKey('al')) {
+      if (curSong['al'].containsKey('blurPicUrl') && curSong['al']['blurPicUrl'] != '') {
+        contentImage = curSong['al']['blurPicUrl'];
+      } else if (curSong['al'].containsKey('picUrl') && curSong['al']['picUrl'] != '') {
+        contentImage = curSong['al']['picUrl'];
+      }
+    }
+
+    _notifier.send(
+      '${curSong['name'] ?? ''}', 
+      title: 'MusicFox', 
+      subtitle: '已标记为不喜欢', 
+      groupID: 'musicfox', 
+      openURL: 'https://github.com/AlanAlbert/musicfox',
+      appIcon: avatar,
+      contentImage: contentImage
+    );
+  }
+
   /// 退出
   void quit(WindowUI ui) {
     if (_playerContainer != null) _playerContainer.quit();
@@ -302,62 +345,56 @@ class MainUI {
     // 歌词
     if (_playerTimer != null && Console.rows - 4 - _window.curMaxMenuRow > 3) {
       var startRow = ((Console.rows - 3 + _window.curMaxMenuRow) / 2).ceil();
-      var lyrics = <dynamic>['', '', '暂无歌词~', '', ''];
-      if (_curSongLyric != null) {
-        var times = _curSongLyric.keys.toList()..sort();
+      var preIndex = _curLyricIndex;
+      if (_curSongLyric != null && _sortedLyricTime != null && _curSongLyric.isNotEmpty && _sortedLyricTime.isNotEmpty) {
         var curMilliseconds = _watch.elapsed.inMilliseconds;
-        for (var i = 0; i < times.length; i++) {
-          if (i > times.length - 2) {
-            lyrics = [
-              i > 1 ? _curSongLyric[times[i-2]] : '',
-              i > 0 ? _curSongLyric[times[i-1]] : '', 
-              _curSongLyric[times[i]], 
-              '',
-              '',
-            ];
-            break;
-          } else if (curMilliseconds < times[i+1]) {
-            lyrics = [
-              i > 1 ? _curSongLyric[times[i-2]] : '',
-              i > 0 ? _curSongLyric[times[i-1]] : '', 
-              _curSongLyric[times[i]], 
-              _curSongLyric[times[i+1]],
-              i < times.length - 2 ? _curSongLyric[times[i+2]] : '',
-            ];
-            break;
-          }
-        }
-      }
-      
-      int lineNum;
-      if (Console.rows - 4 - _window.curMaxMenuRow > 5) {
-        lineNum = 5;
-        startRow -= 2;
-      } else {
-        lineNum = 3;
-        lyrics = lyrics.getRange(1, 4).toList();
-        startRow -= 1;
+        if (_curLyricIndex <= _sortedLyricTime.length - 2 && curMilliseconds >= _sortedLyricTime[_curLyricIndex+1]) _curLyricIndex++;
+      } else if (_firstRenderLyric) {
+        _curShowingLyrics = <String>['', '', '暂无歌词~', '', ''];
       }
 
-      for (var i = 0; i < lineNum; i++) {
-        Console.moveCursor(row: startRow + i, column: 0);
-        Console.write('\r');
-        for (var j = 0; j < _window.startColumn + 2; j++) {
-          Console.write(' ');
+      /// 刷新歌词
+      if (preIndex != _curLyricIndex || _firstRenderLyric) {
+        if (_firstRenderLyric) {
+          _firstRenderLyric = false;
+        } else {
+          _curShowingLyrics = [
+            _curLyricIndex > 1 ? _curSongLyric[_sortedLyricTime[_curLyricIndex-2]] : '',
+            _curLyricIndex > 0 ? _curSongLyric[_sortedLyricTime[_curLyricIndex-1]] : '', 
+            _curSongLyric[_sortedLyricTime[_curLyricIndex]], 
+            _curLyricIndex < _sortedLyricTime.length - 1 ? _curSongLyric[_sortedLyricTime[_curLyricIndex+1]] : '',
+            _curLyricIndex < _sortedLyricTime.length - 2 ? _curSongLyric[_sortedLyricTime[_curLyricIndex+2]] : '',
+          ];
         }
-        if (i == (lineNum / 2).floor()) {
-          if (_curSongLyric != null && _curSongLyric.isNotEmpty) {
+
+        int lineNum;
+        var lyrics = _curShowingLyrics;
+        if (Console.rows - 4 - _window.curMaxMenuRow > 5) {
+          lineNum = 5;
+          startRow -= 2;
+        } else {
+          lineNum = 3;
+          lyrics = lyrics.getRange(1, 4).toList();
+          startRow -= 1;
+        }
+
+        for (var i = 0; i < lineNum; i++) {
+          Console.moveCursor(row: startRow + i, column: 0);
+          Console.write('\r');
+          for (var j = 0; j < _window.startColumn + 2; j++) {
+            Console.write(' ');
+          }
+          if (i == (lineNum / 2).floor()) {
             Console.write(ColorText().lightCyan(lyrics[i]).toString());
           } else {
             Console.write(ColorText().gray(lyrics[i]).toString());
           }
-        } else {
-          Console.write(ColorText().gray(lyrics[i]).toString());
-        }
-        for (var j = _window.startColumn + 2 + lyrics[i].length; j < Console.columns; j++) {
-          Console.write(' ');
+          for (var j = _window.startColumn + 2 + lyrics[i].length; j < Console.columns; j++) {
+            Console.write(' ');
+          }
         }
       }
+      
     }
 
 
@@ -628,7 +665,15 @@ class MainUI {
     };
     (await _player).playWithoutList(songUrl['url']);
     _curMusicInfo.setId(songId);
+    
     _curSongLyric = await getLyric(songId);
+    _curShowingLyrics = <String>['', '', '', '', ''];
+    if (_curSongLyric != null) {
+      _sortedLyricTime = _curSongLyric.keys.toList()..sort();
+    }
+    _curLyricIndex = 0;
+    _firstRenderLyric = true;
+
     var duration = 0;
     if (_playlist[_curSongIndex].containsKey('duration')) {
       duration = _playlist[_curSongIndex]['duration'];
