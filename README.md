@@ -85,29 +85,29 @@ Windows下可以安装`notifu`实现通知，体验不太好（没找到其他�
 $ musicfox
 ```
 
-| 按键 | 作用 |
-| --- | --- |
-| h/H/LEFT | 左 |
-| l/L/RIGHT | 右 |
-| k/K/UP | 上 |
-| j/J/DOWN | 下 |
-| q/Q | 退出 |
-| space | 暂停/播放 |
-| [ | 上一曲 |
-| ] | 下一曲 |
-| - | 减小音量 |
-| = | 加大音量 |
-| n/N/ENTER | 进入选中的菜单 |
-| b/B/ESC | 返回上级菜单 |
-| w/W | 退出并退出登录 |
-| p | 切换播放方式 |
-| P | 心动模式(仅在歌单中时有效) |
-| , | 喜欢当前播放歌曲 |
-| < | 喜欢当前选中歌曲 |
-| . | 当前播放歌曲移除出喜欢 |
-| > | 当前选中歌曲移除出喜欢 |
-| / | 标记当前播放歌曲为不喜欢 |
-| ? | 标记当前选中歌曲为不喜欢 |
+| 按键 | 作用 | 备注 |
+| --- | --- | --- |
+| h/H/LEFT | 左 | Windows只能使用`h`  |
+| l/L/RIGHT | 右 | Windows只能使用`l` |
+| k/K/UP | 上 | Windows只能使用`k` |
+| j/J/DOWN | 下 | Windows只能使用`j` |
+| q/Q | 退出 | Windows只能使用`q` |
+| space | 暂停/播放 | |
+| [ | 上一曲 | |
+| ] | 下一曲 | |
+| - | 减小音量 | |
+| = | 加大音量 | |
+| n/N/ENTER | 进入选中的菜单 | Windows只能使用`n` |
+| b/B/ESC | 返回上级菜单 | Windows只能使用`b` |
+| w/W | 退出并退出登录 | Windows只能使用`w` |
+| p | 切换播放方式 | |
+| P | 心动模式(仅在歌单中时有效) | Windows下使用`o` |
+| , | 喜欢当前播放歌曲 | |
+| < | 喜欢当前选中歌曲 | Windows下使用`;` |
+| . | 当前播放歌曲移除出喜欢 | |
+| > | 当前选中歌曲移除出喜欢 | Windows下使用`'` |
+| / | 标记当前播放歌曲为不喜欢 | |
+| ? | 标记当前选中歌曲为不喜欢 | Windows下使用`\` |
 
 ## TODO
 
@@ -118,7 +118,7 @@ $ musicfox
 在该项目的开发过程中，我将一些通用的功能模块单独抽离出来，做成了几个伴生项目：
 
 * [mp3_player](https://github.com/AlanAlbert/mp3_player): dart命令行调用mpg123播放音乐
-* [colorful_cmd](https://github.com/AlanAlbert/colorful_cmd): 使用dart实现的一些命令行UI组件，如：WIndowUI命令行窗口应用UI、RainbowProgress彩虹进度条、NotifierProxy三大平台通知代理、ColorText颜色文本...
+* [colorful_cmd](https://github.com/AlanAlbert/colorful_cmd): 使用dart实现的一些命令行UI组件，如：WindowUI命令行窗口应用UI、RainbowProgress彩虹进度条、NotifierProxy三大平台通知代理、ColorText颜色文本...
 * [netease_music_request](https://github.com/AlanAlbert/netease_music_request): Dart实现的网易云音乐接口库，使用Dio发起请求，CookieJar管理Cookie信息
 
 

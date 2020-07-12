@@ -169,16 +169,23 @@ class MainUI {
     Keys.bindKey('[').listen((_) => preSong());
     Keys.bindKey(']').listen((_) => nextSong());
     Keys.bindKey(',').listen((_) => likePlayingSong());
-    Keys.bindKey('<').listen((_) => likeSelectedSong());
     Keys.bindKey('.').listen((_) => likePlayingSong(isLike: false));
-    Keys.bindKey('>').listen((_) => likeSelectedSong(isLike: false));
     Keys.bindKeys(['w', 'W']).listen((_) => quitAndClear());
     Keys.bindKey('-').listen((_) => downVolume());
     Keys.bindKey('=').listen((_) => upVolumne());
     Keys.bindKey('/').listen((_) => trashPlayingSong());
-    Keys.bindKey('?').listen((_) => trashSelectedSong());
     Keys.bindKey('p').listen((_) => changePlayMode());
-    Keys.bindKey('P').listen((_) => intelligence());
+    if (Platform.isWindows) {
+      Keys.bindKey('o').listen((_) => intelligence());
+      Keys.bindKey(';').listen((_) => likeSelectedSong());
+      Keys.bindKey('\'').listen((_) => likeSelectedSong(isLike: false));
+      Keys.bindKey('').listen((_) => trashSelectedSong());
+    } else {
+      Keys.bindKey('P').listen((_) => intelligence());
+      Keys.bindKey('<').listen((_) => likeSelectedSong());
+      Keys.bindKey('>').listen((_) => likeSelectedSong(isLike: false));
+      Keys.bindKey('?').listen((_) => trashSelectedSong());
+    }
   }
 
   /// 智能模式
