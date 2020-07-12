@@ -25,6 +25,7 @@ import 'package:musicfox/ui/menu_content/user_playlists.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:musicfox/utils/music_info.dart';
 import 'package:musicfox/utils/music_progress.dart';
+import 'package:musicfox/utils/play_mode.dart';
 import 'package:musicfox/utils/player_status.dart';
 import 'package:netease_music_request/request.dart' as request;
 
@@ -53,6 +54,7 @@ class MainUI {
   NotifierProxy _notifier;
   final List<IMenuContent> _menuContentStack = [];
   IMenuContent _curMenuContent = MainMenu();
+  PlaylistMode _playMode = PlaylistMode.ORDER;
 
   // 歌词
   Map<int, String> _curSongLyric;
@@ -82,7 +84,7 @@ class MainUI {
         '精选歌单',
         '热门歌手',
         '云盘',
-        '主播电台',
+        // '主播电台',
       ],
       defaultMenuTitle: '网易云音乐',
       enterMain: enterMain,
@@ -99,6 +101,7 @@ class MainUI {
     _watch = Stopwatch();
     _notifier = NotifierProxy(mac: [TerminalNotifier(), AppleScriptNotifier()], linux: [NotifySendNotifier()], win: [NotifuNotifier()]);
     var cache = CacheFactory.produce();
+    _playMode = NAME_TO_PLAY_MODE[cache.get('playMode') ?? '顺序'];
     Map progress = cache.get('progress');
     if (progress == null) return;
     _curSongIndex = progress.containsKey('curSongIndex') ? progress['curSongIndex'] : 0;
@@ -118,7 +121,7 @@ class MainUI {
         _playerStatus.setStatus(status);
         displayPlayerUI();
         if (!Platform.isWindows && _playerStatus.status == Status.STOPPED) {
-          Timer(Duration(milliseconds: 1500), () async {
+          Timer(Duration(milliseconds: 1000), () async {
             if (_playerStatus.status == Status.STOPPED) {
               _watch.stop();
               _watch.reset();
@@ -167,6 +170,21 @@ class MainUI {
     Keys.bindKey('=').listen((_) => upVolumne());
     Keys.bindKey('/').listen((_) => trashPlayingSong());
     Keys.bindKey('?').listen((_) => trashSelectedSong());
+    Keys.bindKey('p').listen((_) => changePlayMode());
+  }
+
+  /// 改变播放方式
+  void changePlayMode() {
+    switch (_playMode) {
+      case PlaylistMode.ORDER: _playMode = PlaylistMode.LIST_LOOP;break;
+      case PlaylistMode.LIST_LOOP: _playMode = PlaylistMode.SINGLE_LOOP;break;
+      case PlaylistMode.SINGLE_LOOP: _playMode = PlaylistMode.SHUFFLE;break;
+      case PlaylistMode.SHUFFLE: _playMode = PlaylistMode.ORDER;break;
+      default: _playMode = PlaylistMode.ORDER;
+    }
+    displayPlayerUI(true);
+    var cache = CacheFactory.produce();
+    cache.set('playMode', PLAY_MODE[_playMode]);
   }
 
   /// 调小声音
@@ -397,10 +415,9 @@ class MainUI {
       
     }
 
-
-
     // 歌曲名
-    Console.moveCursor(row: Console.rows - 3, column: _window.startColumn);
+    Console.moveCursor(row: Console.rows - 3, column: _window.startColumn - 6);
+    var playMode = PLAY_MODE[_playMode];
     var status = _playerStatus.status == Status.PLAYING ? '♫  ♪ ♫  ♪' : '_ _ z Z Z';
     if (changeSong) {
       for (var i = 3; i > 0; i--) {
@@ -410,13 +427,16 @@ class MainUI {
       Console.moveCursorUp(3);
     } else {
       Console.write('\r');
-      for (var i = 1; i < _window.startColumn; i++) {
+      for (var i = 1; i < _window.startColumn - 6; i++) {
         Console.write(' ');
       }
     }
-    Console.write(ColorText()
-      .setColor(_window.primaryColor).text('${status}  ${_playlist[_curSongIndex]['name']} ')
-      .gray(getCurSongArtists()).toString());
+    if (_curSongIndex <= _playlist.length - 1) {
+      Console.write(ColorText()
+        .magenta('[${playMode}] ')
+        .setColor(_window.primaryColor).text('${status}  ${_playlist[_curSongIndex]['name']} ')
+        .gray(getCurSongArtists()).toString());
+    }
 
     // 进度条
     Console.moveCursor(row: Console.rows);
@@ -555,18 +575,33 @@ class MainUI {
 
   /// 下一曲
   Future<void> nextSong() async {
-    var songs = _playlist;
-    if (songs == null || _curSongIndex >= songs.length - 1) {
+    if (_playlist == null || _curSongIndex >= _playlist.length - 1) {
       var content = await getBottomOutContent();
-      if (content == null) return;
-      if (content.appendMenus != null && content.appendMenus.isNotEmpty) {
-        _window.menu.addAll(content.appendMenus);
-      }
-      if (content.appendSongs != null && content.appendSongs.isNotEmpty) {
-        _playlist.addAll(content.appendSongs);
+      if (content != null) {
+        if (content.appendMenus != null && content.appendMenus.isNotEmpty) {
+          _window.menu.addAll(content.appendMenus);
+        }
+        if (content.appendSongs != null && content.appendSongs.isNotEmpty) {
+          _playlist.addAll(content.appendSongs);
+        }
       }
     };
-    _curSongIndex++;
+    var songs = _playlist;
+    switch (_playMode) {
+      case PlaylistMode.LIST_LOOP:
+        _curSongIndex = _curSongIndex >= songs.length - 1 ? 0 : _curSongIndex + 1;
+        break;
+      case PlaylistMode.SINGLE_LOOP:
+        break;
+      case PlaylistMode.SHUFFLE:
+        _curSongIndex = Random().nextInt(songs.length - 1);
+        break;
+      case PlaylistMode.ORDER:
+        if (_curSongIndex >= songs.length - 1) return;
+        _curSongIndex++;
+        break;
+    }
+    if (_curSongIndex > songs.length - 1) return;
     Map songInfo = songs[_curSongIndex];
     if (!songInfo.containsKey('id')) return;
     await playSong(songInfo['id']);
@@ -574,10 +609,22 @@ class MainUI {
 
   /// 上一曲
   Future<void> preSong() async {
-    var songs = _playlist;
-    if (songs == null || _curSongIndex <= 0) return;
-    _curSongIndex--;
-    Map songInfo = songs[_curSongIndex];
+    if (_playlist == null) return;
+    switch (_playMode) {
+      case PlaylistMode.LIST_LOOP:
+        _curSongIndex = _curSongIndex <= 0 ? _playlist.length - 1 : _curSongIndex - 1;
+        break;
+      case PlaylistMode.SINGLE_LOOP:
+        break;
+      case PlaylistMode.SHUFFLE:
+        _curSongIndex = Random().nextInt(_playlist.length - 1);
+        break;
+      case PlaylistMode.ORDER:
+        if (_curSongIndex <= 0) return;
+        _curSongIndex--;
+        break;
+    }
+    Map songInfo = _playlist[_curSongIndex];
     if (!songInfo.containsKey('id')) return;
     await playSong(songInfo['id']);
   }
