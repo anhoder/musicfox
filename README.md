@@ -34,7 +34,7 @@ musicfox是一款使用Dart编写的网易云音乐命令行程序。
 提供两种方式安装：
 
 1. 直接下载[Mac可执行文件](./bin/musicfox.mac)，在iTerm或Terminal中打开
-2. 使用brew安装: `brew install musicfox` 
+2. 使用brew安装: `brew tap AlanAlbert/musicfox && brew install musicfox` 
 
 Mac下默认使用AppleScript发送通知。如下：
 
@@ -53,10 +53,7 @@ brew install terminal-notifier
 
 ### Linux
 
-提供两种方式安装：
-
-1. 直接下载[Linux可执行文件](./bin/musicfox.ubuntu)，在终端中执行。
-2. 使用apt安装：`sudo apt install musicfox`
+直接下载[Linux可执行文件](./bin/musicfox.ubuntu)，在终端中执行。
 
 > 本人没有Linux系统，该执行文件是在WSL2(Ubuntu 2004)下打包的，不保证其他Linux系统也能正常使用
 
