@@ -73,7 +73,7 @@ Linux可以安装`libnotify-bin`来使用通知功能（未经测试）
 *推荐在WSL下使用，WSL的声音转发可以参考我的另一个[项目](https://github.com/AlanAlbert/wsl-audio-musicbox)*
 
 
-下载[Windows可执行文件](./bin/musicfox.win)，在命令行中运行即可。
+下载[Windows可执行文件](./bin/musicfox.exe)，在命令行中运行即可。
 
 > 推荐使用Windows Terminal
 
