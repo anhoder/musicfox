@@ -200,7 +200,7 @@ class MainUI {
     if (!loginStatus) return;
 
     var playlist = request.Playlist();
-    Map response = await playlist.getIntelligenceList(playlistId, selectedSong['id']);
+    Map response = await playlist.getIntelligenceList(playlistId, selectedSong['id'], startMusicId: selectedSong['id']);
     response = validateResponse(_window, response);
     if (response['code'] == 301) {
       loginStatus = await login(_window);
@@ -230,6 +230,7 @@ class MainUI {
 
   /// 改变播放方式
   void changePlayMode() {
+    if (_isIntelligence) return;
     switch (_playMode) {
       case PlaylistMode.ORDER: _playMode = PlaylistMode.LIST_LOOP;break;
       case PlaylistMode.LIST_LOOP: _playMode = PlaylistMode.SINGLE_LOOP;break;
