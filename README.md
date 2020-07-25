@@ -29,8 +29,8 @@ musicfox是一款使用Dart编写的网易云音乐命令行程序。
 
 提供两种方式安装：
 
-1. 直接下载[Mac可执行文件](./bin/musicfox.mac)，在iTerm或Terminal中打开
-2. 使用brew安装: `brew tap AlanAlbert/musicfox && brew install musicfox` 
+1. 使用brew安装: `brew tap AlanAlbert/musicfox && brew install musicfox` 
+2. 直接下载[Mac可执行文件](./bin/musicfox.mac)，在iTerm或Terminal中打开
 
 Mac下默认使用AppleScript发送通知。如下：
 
@@ -104,7 +104,34 @@ $ musicfox
 
 ## TODO
 
-* [ ] 音乐电台
+* [x] 我的歌单
+* [x] 每日推荐歌曲
+* [x] 每日推荐歌单
+* [x] 私人FM
+* [x] 歌词显示
+* [x] 欢迎界面
+* [x] 搜索
+    * [x] 按歌曲
+    * [x] 按歌手
+    * [x] 按歌词
+    * [x] 按歌单
+    * [x] 按专辑
+    * [x] 按用户
+* [x] 排行榜
+* [x] 精选歌单
+* [x] 最新专辑
+* [x] 热门歌手
+* [x] 云盘
+* [x] 播放方式切换
+* [x] 喜欢/取消喜欢
+* [x] 心动模式/智能模式
+* [ ] 音乐电台 
+* [ ] 将部分设置转化为文件可配置
+    * [ ] 欢迎界面的欢迎语
+    * [ ] 欢迎界面时长
+    * [ ] 主题色
+    * [ ] 歌词显示行数
+    * [ ] ...
 
 ## 伴生项目
 
