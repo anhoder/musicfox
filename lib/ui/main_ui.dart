@@ -809,8 +809,8 @@ class MainUI {
 
     // 播放器进度条
     _playerProgress = RainbowProgress(
-      completeChar: '_',
-      forwardChar: '_',
+      completeChar: '#',
+      forwardChar: '#',
       leftDelimiter: '',
       rightDelimiter: '',
       showPercent: false,
