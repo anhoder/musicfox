@@ -1,0 +1,1 @@
+const CUR_TAG = '1.1.0';

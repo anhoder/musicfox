@@ -30,6 +30,7 @@ import 'package:musicfox/utils/music_info.dart';
 import 'package:musicfox/utils/music_progress.dart';
 import 'package:musicfox/utils/play_mode.dart';
 import 'package:musicfox/utils/player_status.dart';
+import 'package:musicfox/version.dart';
 import 'package:netease_music_request/request.dart' as request;
 
 final MENU_CONTENTS = <IMenuContent>[
@@ -115,6 +116,17 @@ class MainUI {
     _playlist = progress.containsKey('playlist') ? progress['playlist'] : [];
     _playingMenuId = progress.containsKey('playingMenuId') ? progress['playingMenuId'] : null;
     signin(_notifier);
+    getLatestTag().then((tag) {
+      if (tag != CUR_TAG && tag != '') {
+        _notifier.send(
+          '点击查看更新~', 
+          title: 'MusicFox', 
+          subtitle: '最新版本${tag}已发布！', 
+          groupID: 'musicfox-update', 
+          openURL: 'https://github.com/AlanAlbert/musicfox',
+        );
+      }
+    });
   }
 
   Future<Player> get _player async {
@@ -797,8 +809,8 @@ class MainUI {
 
     // 播放器进度条
     _playerProgress = RainbowProgress(
-      completeChar: '#',
-      forwardChar: '#',
+      completeChar: '_',
+      forwardChar: '_',
       leftDelimiter: '',
       rightDelimiter: '',
       showPercent: false,

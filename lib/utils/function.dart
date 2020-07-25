@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:colorful_cmd/component.dart';
 import 'package:colorful_cmd/utils.dart';
 import 'package:console/console.dart';
@@ -209,4 +212,23 @@ void signin(NotifierProxy notifier) {
       );
     }
   });
+}
+
+/// 获取最新的Tag
+Future<String> getLatestTag() async {
+  try {
+    var httpClient = HttpClient();
+    var uri = Uri.https('api.github.com', '/repos/AlanAlbert/musicfox/releases/latest');
+    var request = await httpClient.getUrl(uri);
+    var response = await request.close();
+    var responseBody = await response.transform(utf8.decoder).join();
+    Map res = json.decode(responseBody);
+    if (res.containsKey('tag_name')) {
+      return res['tag_name'];
+    }
+    return '';
+  } catch (e) {
+    return '';
+  }
+
 }
