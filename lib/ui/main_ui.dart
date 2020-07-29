@@ -15,6 +15,7 @@ import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:musicfox/ui/menu_content/cloud.dart';
 import 'package:musicfox/ui/menu_content/daily_recommand_playlist.dart';
 import 'package:musicfox/ui/menu_content/daily_recommend_songs.dart';
+import 'package:musicfox/ui/menu_content/dj.dart';
 import 'package:musicfox/ui/menu_content/help.dart';
 import 'package:musicfox/ui/menu_content/high_quality_playlist.dart';
 import 'package:musicfox/ui/menu_content/hot_artist.dart';
@@ -44,6 +45,7 @@ final MENU_CONTENTS = <IMenuContent>[
   HighQualityPlaylist(),
   HotArtist(),
   Cloud(),
+  Dj(),
   Help(),
 ];
 
