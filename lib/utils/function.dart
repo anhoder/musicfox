@@ -61,7 +61,7 @@ List<String> getListFromSongs(List songs) {
         }
       });
       artistName = '<${artistName}>';
-      name = '${name} ' + ColorText().gray(artistName).toString();
+      if (artistName != '<>') name = '${name} ' + ColorText().gray(artistName).toString();
     }
     res.add(name);
   });
@@ -121,6 +121,10 @@ List<String> getListFromDjs(List djs) {
   var res = <String>[];
   djs.forEach((item) {
     var name = item.containsKey('name') ? item['name'] : '';
+    if (item.containsKey('dj') && item['dj'].containsKey('nickname')) {
+      var nickname = ColorText().gray('<${item['dj']['nickname']}>').toString();
+      name = '${name} ${nickname}';
+    }
     res.add(name);
   });
   return res;

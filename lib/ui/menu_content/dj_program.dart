@@ -1,13 +1,17 @@
 import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:colorful_cmd/component.dart';
-import 'package:musicfox/ui/menu_content/dj_program.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
 
-class DjRecommend implements IMenuContent {
+class DjProgram implements IMenuContent {
+  int djId;
+  List _programs;
 
-  List _djList;
+  DjProgram(int djId) {
+    if (this.djId != djId) _programs = null;
+    this.djId = djId;
+  }
 
   @override
   Future<BottomOutContent> bottomOut(WindowUI ui) => null;
@@ -16,34 +20,32 @@ class DjRecommend implements IMenuContent {
   Future<String> getContent(WindowUI ui) => null;
 
   @override
-  Future<IMenuContent> getMenuContent(WindowUI ui, int index) {
-    if (ui.pageData.length - 1 < index || !ui.pageData[index].containsKey('id')) return null;
-    return Future.value(DjProgram(ui.pageData[index]['id']));
-  }
+  Future<IMenuContent> getMenuContent(WindowUI ui, int index) => null;
 
   @override
-  String getMenuId() => 'DjRecommend()';
+  String getMenuId() => 'DjProgram(${djId})';
 
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
-    if (_djList == null || _djList.isEmpty) {
+    if (_programs == null || _programs.isEmpty) {
       var dj = Dj();
-      Map response = await dj.getHotDjs();
+      Map response = await dj.getDjPrograms(djId);
       response = validateResponse(ui, response);
       if (response == null) return null;
-
-      _djList = response.containsKey('djRadios') ? response['djRadios'] : [];
+      
+      List programs = response.containsKey('programs') ? response['programs'] : [];
+      _programs = programs.map((item) => item['mainSong'] ?? {}).toList();
     }
 
-    ui.pageData = _djList;
+    ui.pageData = _programs;
 
-    var res = getListFromDjs(_djList);
+    var res = getListFromSongs(_programs);
 
     return Future.value(res);
   }
 
   @override
-  bool get isPlayable => false;
+  bool get isPlayable => true;
 
   @override
   bool get isResetPlaylist => false;
