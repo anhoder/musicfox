@@ -13,18 +13,24 @@ class Dj implements IMenuContent {
 
   @override
   Future<IMenuContent> getMenuContent(WindowUI ui, int index) {
-    // TODO: implement getMenuContent
-    throw UnimplementedError();
+    // TODO
   }
 
   @override
   String getMenuId() => 'Dj()';
 
   @override
-  Future<List<String>> getMenus(WindowUI ui) {
-    // TODO: implement getMenus
-    throw UnimplementedError();
-  }
+  Future<List<String>> getMenus(WindowUI ui) => Future.value([
+    '推荐',
+    '今日优选',
+    '热门电台',
+    '新晋电台',
+    '电台分类',
+    '节目榜',
+    '24小时节目榜',
+    '24小时主播榜',
+    '最热主播榜',
+  ]);
 
   @override
   bool get isPlayable => false;
