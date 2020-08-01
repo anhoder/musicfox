@@ -1,12 +1,16 @@
 import 'package:musicfox/ui/bottom_out_content.dart';
 
 import 'package:colorful_cmd/component.dart';
+import 'package:musicfox/ui/menu_content/dj_daily_recommend.dart';
+import 'package:musicfox/ui/menu_content/dj_mine.dart';
 import 'package:musicfox/ui/menu_content/dj_recommend.dart';
 
 import 'i_menu_content.dart';
 
 List<IMenuContent> DJ_MENU_CONTENTS = [
+  DjMine(),
   DjRecommend(),
+  DjDailyRecommend(),
 ];
 
 class Dj implements IMenuContent {
@@ -26,6 +30,7 @@ class Dj implements IMenuContent {
 
   @override
   Future<List<String>> getMenus(WindowUI ui) => Future.value([
+    '我的订阅',
     '推荐电台',
     '今日优选',
     '热门电台',

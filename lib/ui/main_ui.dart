@@ -19,6 +19,7 @@ import 'package:musicfox/ui/menu_content/dj.dart';
 import 'package:musicfox/ui/menu_content/help.dart';
 import 'package:musicfox/ui/menu_content/high_quality_playlist.dart';
 import 'package:musicfox/ui/menu_content/hot_artist.dart';
+import 'package:musicfox/ui/menu_content/i_dj_menu_content.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/ui/menu_content/main_menu.dart';
 import 'package:musicfox/ui/menu_content/personal_fm.dart';
@@ -307,6 +308,11 @@ class MainUI {
   Future<void> likeSelectedSong({bool isLike = true}) async {
     if (_window.pageData == null || _window.selectIndex > _window.pageData.length - 1) return;
     Map selectedSong = _window.pageData[_window.selectIndex];
+    
+    if (_curMenuContent.runtimeType == IDjMenuContent && selectedSong.containsKey('id')) {
+      // TODO sub dj
+    }
+
     if (!_curMenuContent.isPlayable || !selectedSong.containsKey('id')) return;
     
     var cache = CacheFactory.produce();
@@ -538,7 +544,7 @@ class MainUI {
           }
         });
     }
-    return '<${artistName}>';
+    return artistName == '' ? '' : '<${artistName}>';
   }
 
   /// 进入菜单
@@ -758,7 +764,7 @@ class MainUI {
       avatar = user['avatar'];
     }
     _notifier.send(
-      '${songName} - ${artist}', 
+      artist == '' ? songName : '${songName} - ${artist}', 
       title: 'MusicFox', 
       subtitle: '正在播放: ${songName}', 
       groupID: 'musicfox', 

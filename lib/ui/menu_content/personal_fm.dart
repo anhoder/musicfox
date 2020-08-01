@@ -60,7 +60,7 @@ class PersonalFm implements IMenuContent {
           });
         }
         artistName = '<${artistName}>';
-        name = '${name} ' + ColorText().gray(artistName).toString();
+        if (artistName != '<>') name = '${name} ' + ColorText().gray(artistName).toString();
       }
       res.add(name);
     });

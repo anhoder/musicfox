@@ -6,7 +6,7 @@ import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
 
-class DjRecommend extends IDjMenuContent {
+class DjMine extends IDjMenuContent {
 
   List _djList;
 
@@ -23,13 +23,15 @@ class DjRecommend extends IDjMenuContent {
   }
 
   @override
-  String getMenuId() => 'DjRecommend()';
+  String getMenuId() => 'DjMine()';
 
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
     if (_djList == null || _djList.isEmpty) {
+      var loginStatus = await checkLogin(ui);
+      if (!loginStatus) return null;
       var dj = Dj();
-      Map response = await dj.getHotDjs();
+      Map response = await dj.getSubDjs(limit: 100);
       response = validateResponse(ui, response);
       if (response == null) return null;
 
