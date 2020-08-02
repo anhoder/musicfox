@@ -143,7 +143,7 @@ class MainUI {
         _playerStatus.setStatus(status);
         displayPlayerUI();
         if (!Platform.isWindows && _playerStatus.status == Status.STOPPED) {
-          Timer(Duration(milliseconds: 1000), () async {
+          Timer(Duration(milliseconds: 1500), () async {
             if (_playerStatus.status == Status.STOPPED) {
               _watch.stop();
               _watch.reset();
