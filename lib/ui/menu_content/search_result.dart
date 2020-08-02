@@ -3,6 +3,7 @@ import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:colorful_cmd/component.dart';
 import 'package:musicfox/ui/menu_content/album_content.dart';
 import 'package:musicfox/ui/menu_content/artist.dart';
+import 'package:musicfox/ui/menu_content/dj_program.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/ui/menu_content/playlist_songs.dart';
 import 'package:musicfox/ui/menu_content/search_type.dart';
@@ -50,6 +51,8 @@ class SearchResult implements IMenuContent {
         return Future.value(UserPlaylists(_data[index]['userId']));
       case 'artists':
         return Future.value(Artist(_data[index]['id']));
+      case 'djRadios':
+        return Future.value(DjProgram(_data[index]['id']));
     }
     return null;
   }
@@ -92,6 +95,9 @@ class SearchResult implements IMenuContent {
 
   @override
   bool get isResetPlaylist => true;
+
+  @override
+  bool get isDjMenu => SEARCH_TYPE_KEYS[_type] == 'djRadios';
   
   @override
   String getMenuId() => 'SearchResult(${_type})';

@@ -62,4 +62,6 @@ class Cloud implements IMenuContent {
   @override
   bool get isResetPlaylist => false;
   
+  @override
+  bool get isDjMenu => false;
 }

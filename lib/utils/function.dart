@@ -146,6 +146,17 @@ List<String> getListFromRanks(List ranks) {
   return res;
 }
 
+/// 获取DJ分类
+List<String> getListFromDjCats(List djCats) {
+  var res = <String>[];
+  djCats.forEach((item) {
+    var name = item.containsKey('name') ? item['name'] : '';
+    res.add(name);
+  });
+  return res;
+}
+
+
 /// 获取歌词
 Future<Map<int, String>> getLyric(int songId) async {
   var song = Song();

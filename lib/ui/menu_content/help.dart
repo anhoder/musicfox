@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:colorful_cmd/utils.dart';
 import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:colorful_cmd/component.dart';
@@ -11,7 +13,13 @@ class Help implements IMenuContent {
   Future<String> getContent(WindowUI ui) => null;
 
   @override
-  Future<IMenuContent> getMenuContent(WindowUI ui, int index) => null;
+  Future<IMenuContent> getMenuContent(WindowUI ui, int index) {
+    if (index != 0 && index != 1) return null;
+    var res = Process.runSync('which', ['open']);
+    if (res.exitCode != 0) return null;
+    Process.run('open', ['https://github.com/AlanAlbert/musicfox']);
+    return null;
+  }
 
   @override
   String getMenuId() => 'Help()';
@@ -19,6 +27,8 @@ class Help implements IMenuContent {
   @override
   Future<List<String>> getMenus(WindowUI ui) {
     return Future.value([
+      ColorText().yellow('进来给个star✨吧~').toString(),
+      ColorText().yellow('Thanks♪(･ω･)ﾉ').toString(),
       '${ColorText().cyan('[h/H/LEFT]').toString()} ${ColorText().blue('左').toString()}',
       '${ColorText().cyan('[l/L/RIGHT]').toString()} ${ColorText().blue('右').toString()}',
       '${ColorText().cyan('[k/K/UP]').toString()} ${ColorText().blue('上').toString()}',
@@ -49,4 +59,6 @@ class Help implements IMenuContent {
   @override
   bool get isResetPlaylist => false;
   
+  @override
+  bool get isDjMenu => false;
 }

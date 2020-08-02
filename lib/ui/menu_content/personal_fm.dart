@@ -15,6 +15,9 @@ class PersonalFm implements IMenuContent {
   bool get isResetPlaylist => true;
 
   @override
+  bool get isDjMenu => false;
+
+  @override
   Future<BottomOutContent> bottomOut(WindowUI ui) async {
     var song = Song();
     Map response = await song.getPersonalFMSongs();

@@ -15,6 +15,9 @@ class PlaylistSongs implements IMenuContent {
   @override
   bool get isResetPlaylist => false;
 
+  @override
+  bool get isDjMenu => false;
+
   PlaylistSongs(int playlistId) {
     if (this.playlistId != playlistId) _songs = null;
     this.playlistId = playlistId;

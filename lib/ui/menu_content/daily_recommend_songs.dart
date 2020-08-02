@@ -17,6 +17,9 @@ class DailyRecommendSongs implements IMenuContent{
   bool get isResetPlaylist => true;
 
   @override
+  bool get isDjMenu => false;
+
+  @override
   Future<String> getContent(WindowUI ui) => Future.value(''); 
 
   @override

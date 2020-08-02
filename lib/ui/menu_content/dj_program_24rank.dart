@@ -4,14 +4,8 @@ import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
 
-class DjProgram implements IMenuContent {
-  int djId;
+class DjProgram24Rank implements IMenuContent {
   List _programs;
-
-  DjProgram(int djId) {
-    if (this.djId != djId) _programs = null;
-    this.djId = djId;
-  }
 
   @override
   Future<BottomOutContent> bottomOut(WindowUI ui) => null;
@@ -23,18 +17,18 @@ class DjProgram implements IMenuContent {
   Future<IMenuContent> getMenuContent(WindowUI ui, int index) => null;
 
   @override
-  String getMenuId() => 'DjProgram(${djId})';
+  String getMenuId() => 'DjProgram24Rank()';
 
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
     if (_programs == null || _programs.isEmpty) {
       var dj = Dj();
-      Map response = await dj.getDjPrograms(djId);
+      Map response = await dj.getProgram24Rank();
       response = validateResponse(ui, response);
       if (response == null) return null;
       
-      List programs = response.containsKey('programs') ? response['programs'] : [];
-      _programs = programs.map((item) => item['mainSong'] ?? {}).toList();
+      List programs = response['data']['list'] ?? [];
+      _programs = programs.map((item) => item['program']['mainSong'] ?? {}).toList();
     }
 
     ui.pageData = _programs;

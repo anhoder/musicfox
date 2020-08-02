@@ -47,6 +47,9 @@ class SearchType implements IMenuContent {
 
   @override
   bool get isResetPlaylist => false;
+
+  @override
+  bool get isDjMenu => false;
   
   @override
   String getMenuId() => 'SearchType()';

@@ -5,6 +5,7 @@ abstract class IMenuContent {
 
   bool get isPlayable;
   bool get isResetPlaylist;
+  bool get isDjMenu;
 
   Future<List<String>> getMenus(WindowUI ui);
 

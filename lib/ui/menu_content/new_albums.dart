@@ -46,4 +46,6 @@ class NewAlbums implements IMenuContent {
   @override
   String getMenuId() => 'NewAlbums()';
   
+  @override
+  bool get isDjMenu => false;
 }

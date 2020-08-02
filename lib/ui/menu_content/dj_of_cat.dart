@@ -1,15 +1,20 @@
 import 'package:musicfox/ui/bottom_out_content.dart';
 import 'package:colorful_cmd/component.dart';
-import 'package:musicfox/ui/menu_content/album_content.dart';
+import 'package:musicfox/ui/menu_content/dj_program.dart';
+import 'package:musicfox/ui/menu_content/i_dj_menu_content.dart';
 import 'package:musicfox/ui/menu_content/i_menu_content.dart';
 import 'package:musicfox/utils/function.dart';
 import 'package:netease_music_request/request.dart';
 
-class ArtistAlbums implements IMenuContent {
+class DjOfCat extends IDjMenuContent {
 
-  final int _artistId;
+  int catId;
+  List _djList;
 
-  ArtistAlbums(this._artistId);
+  DjOfCat(int catId) {
+    if (this.catId != catId) _djList = null;
+    this.catId = catId;
+  }
 
   @override
   Future<BottomOutContent> bottomOut(WindowUI ui) => null;
@@ -20,23 +25,26 @@ class ArtistAlbums implements IMenuContent {
   @override
   Future<IMenuContent> getMenuContent(WindowUI ui, int index) {
     if (ui.pageData.length - 1 < index || !ui.pageData[index].containsKey('id')) return null;
-    return Future.value(AlbumContent(ui.pageData[index]['id']));
+    return Future.value(DjProgram(ui.pageData[index]['id']));
   }
 
   @override
-  String getMenuId() => 'ArtistAlbums(${_artistId})';
+  String getMenuId() => 'DjOfCat(${catId})';
 
   @override
   Future<List<String>> getMenus(WindowUI ui) async {
-    var artist = Artist();
-    Map response = await artist.getAlbums(_artistId);
-    response = validateResponse(ui, response);
-    if (response == null) return null;
+    if (_djList == null || _djList.isEmpty) {
+      var dj = Dj();
+      Map response = await dj.getCateRecommendDjs(catId);
+      response = validateResponse(ui, response);
+      if (response == null) return null;
 
-    var albums = response.containsKey('hotAlbums') ? response['hotAlbums'] : [];
-    ui.pageData = albums;
+      _djList = response.containsKey('djRadios') ? response['djRadios'] : [];
+    }
 
-    var res = getListFromSongs(albums);
+    ui.pageData = _djList;
+
+    var res = getListFromDjs(_djList);
 
     return Future.value(res);
   }
@@ -47,6 +55,4 @@ class ArtistAlbums implements IMenuContent {
   @override
   bool get isResetPlaylist => false;
   
-  @override
-  bool get isDjMenu => false;
 }

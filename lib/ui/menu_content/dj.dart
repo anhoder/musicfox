@@ -1,8 +1,13 @@
 import 'package:musicfox/ui/bottom_out_content.dart';
 
 import 'package:colorful_cmd/component.dart';
+import 'package:musicfox/ui/menu_content/dj_cat.dart';
 import 'package:musicfox/ui/menu_content/dj_daily_recommend.dart';
+import 'package:musicfox/ui/menu_content/dj_hot.dart';
 import 'package:musicfox/ui/menu_content/dj_mine.dart';
+import 'package:musicfox/ui/menu_content/dj_new.dart';
+import 'package:musicfox/ui/menu_content/dj_program_24rank.dart';
+import 'package:musicfox/ui/menu_content/dj_program_rank.dart';
 import 'package:musicfox/ui/menu_content/dj_recommend.dart';
 
 import 'i_menu_content.dart';
@@ -11,6 +16,11 @@ List<IMenuContent> DJ_MENU_CONTENTS = [
   DjMine(),
   DjRecommend(),
   DjDailyRecommend(),
+  DjHot(),
+  DjNew(),
+  DjCat(),
+  DjProgramRank(),
+  DjProgram24Rank(),
 ];
 
 class Dj implements IMenuContent {
@@ -38,8 +48,6 @@ class Dj implements IMenuContent {
     '电台分类',
     '节目榜',
     '24小时节目榜',
-    '24小时主播榜',
-    '最热主播榜',
   ]);
 
   @override
@@ -48,4 +56,6 @@ class Dj implements IMenuContent {
   @override
   bool get isResetPlaylist => false;
   
+  @override
+  bool get isDjMenu => false;
 }

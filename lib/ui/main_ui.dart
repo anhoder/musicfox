@@ -304,23 +304,58 @@ class MainUI {
     await likeSong(curSong, isLike: isLike);
   }
 
-  /// 喜欢选中的歌曲
+  /// 喜欢选中的歌曲 or 订阅选中的电台
   Future<void> likeSelectedSong({bool isLike = true}) async {
     if (_window.pageData == null || _window.selectIndex > _window.pageData.length - 1) return;
     Map selectedSong = _window.pageData[_window.selectIndex];
-    
-    if (_curMenuContent.runtimeType == IDjMenuContent && selectedSong.containsKey('id')) {
-      // TODO sub dj
-    }
-
-    if (!_curMenuContent.isPlayable || !selectedSong.containsKey('id')) return;
     
     var cache = CacheFactory.produce();
     Map user = cache.get('user');
     if (user == null) return;
 
+    if ((_curMenuContent is IDjMenuContent || _curMenuContent.isDjMenu) && selectedSong.containsKey('id')) {
+      await subDj(selectedSong, isSub: isLike);
+      return;
+    }
+
+    if (!_curMenuContent.isPlayable || !selectedSong.containsKey('id')) return;
+
     await likeSong(selectedSong, isLike: isLike);
   }
+
+  /// (取消)订阅电台
+  Future<void> subDj(Map curDj, {bool isSub = true}) async {
+    if (curDj == null || !curDj.containsKey('id')) return;
+
+    var cache = CacheFactory.produce();
+    Map user = cache.get('user');
+    if (user == null) return;
+
+    var dj = request.Dj();
+    Map response = await dj.subDj(curDj['id'], isSub: true);
+    if (response == null || !response.containsKey('code') || response['code'] != 200) return;
+
+    var avatar = '';
+    if (user.containsKey('avatar')) {
+      avatar = user['avatar'];
+    }
+
+    var contentImage = '';
+    if (curDj.containsKey('picUrl')) {
+      contentImage = curDj['picUrl'];
+    }
+
+    _notifier.send(
+      '${curDj['name'] ?? ''}', 
+      title: 'MusicFox', 
+      subtitle: isSub ? '已订阅电台' : '已取消订阅', 
+      groupID: 'musicfox', 
+      openURL: 'https://github.com/AlanAlbert/musicfox',
+      appIcon: avatar,
+      contentImage: contentImage
+    );
+  }
+
 
   /// (不)喜欢歌曲
   Future<void> likeSong(Map curSong, {bool isLike = true}) async {
@@ -339,7 +374,7 @@ class MainUI {
       avatar = user['avatar'];
     }
 
-    String contentImage;
+    var contentImage = '';
     if (curSong.containsKey('album')) {
       if (curSong['album'].containsKey('blurPicUrl') && curSong['album']['blurPicUrl'] != '') {
         contentImage = curSong['album']['blurPicUrl'];

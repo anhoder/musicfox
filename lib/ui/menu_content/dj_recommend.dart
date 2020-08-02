@@ -29,7 +29,7 @@ class DjRecommend extends IDjMenuContent {
   Future<List<String>> getMenus(WindowUI ui) async {
     if (_djList == null || _djList.isEmpty) {
       var dj = Dj();
-      Map response = await dj.getHotDjs();
+      Map response = await dj.getRecommendDjs();
       response = validateResponse(ui, response);
       if (response == null) return null;
 
