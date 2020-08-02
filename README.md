@@ -1,6 +1,6 @@
 # musicfox
 
-***给个星星✨吧***
+**给个star✨吧**
 
 musicfox是一款使用Dart编写的网易云音乐命令行程序。
 
@@ -22,6 +22,10 @@ musicfox是一款使用Dart编写的网易云音乐命令行程序。
 ![主界面1](./preview/preview1.png)
 ![主界面2](./preview/preview2.png)
 
+## 更新
+
+* Mac: `brew update musicfox`
+* Linux或Windows: 下载最新的可运行文件
 
 ## 安装
 
@@ -127,7 +131,7 @@ $ musicfox
 * [x] 播放方式切换
 * [x] 喜欢/取消喜欢
 * [x] 心动模式/智能模式
-* [ ] 音乐电台 
+* [x] 音乐电台 
 * [ ] 将部分设置转化为文件可配置
     * [ ] 欢迎界面的欢迎语
     * [ ] 欢迎界面时长
