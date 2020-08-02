@@ -819,7 +819,7 @@ class MainUI {
     _watch.reset();
     _watch.start();
     var songRequest = request.Song();
-    Map songUrl = await songRequest.getSongUrlByWeb(songId);
+    Map songUrl = await songRequest.getSongUrlByWeb(songId, br: 320000);
     songUrl = songUrl['data'][0];
     if (!songUrl.containsKey('url') || songUrl['url'] == null) {
       await nextSong();
