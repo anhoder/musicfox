@@ -61,8 +61,24 @@ brew install terminal-notifier
 ![terminal-notifier](./preview/terminal-notifier.png)
 
 ### Linux
+- Arch Linux
 
-直接下载[Linux可执行文件](./bin/musicfox.ubuntu)，在终端中执行。
+从[AUR](https://aur.archlinux.org/packages/musicfox/)安装 musicfox 
+
+```sh
+# 使用 AUR helper 
+# yay
+yay -S musicfox
+# pikaur
+pikaur -S musicfox
+
+# 手动安装
+git clone https://aur.archlinux.org/musicfox.git
+cd musicfox
+makepkg -si
+```
+
+- 直接下载[Linux可执行文件](./bin/musicfox.ubuntu)，在终端中执行。
 
 > 本人没有Linux系统，该执行文件是在WSL2(Ubuntu 2004)下打包的，不保证其他Linux系统也能正常使用
 
