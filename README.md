@@ -11,9 +11,9 @@
 
 musicfox是一款使用Dart编写的网易云音乐命令行程序。
 
-![GitHub repo size](https://img.shields.io/github/repo-size/AlanAlbert/musicfox) ![GitHub](https://img.shields.io/github/license/AlanAlbert/musicfox) ![Last Tag](https://badgen.net/github/tag/AlanAlbert/musicfox) ![GitHub last commit](https://badgen.net/github/last-commit/AlanAlbert/musicfox)![GitHub All Releases](https://img.shields.io/github/downloads/AlanAlbert/musicfox/total)
+![GitHub repo size](https://img.shields.io/github/repo-size/anhoder/musicfox) ![GitHub](https://img.shields.io/github/license/anhoder/musicfox) ![Last Tag](https://badgen.net/github/tag/anhoder/musicfox) ![GitHub last commit](https://badgen.net/github/last-commit/anhoder/musicfox)![GitHub All Releases](https://img.shields.io/github/downloads/anhoder/musicfox/total)
 
-![GitHub stars](https://img.shields.io/github/stars/AlanAlbert/musicfox?style=social) ![GitHub forks](https://img.shields.io/github/forks/AlanAlbert/musicfox?style=social)
+![GitHub stars](https://img.shields.io/github/stars/anhoder/musicfox?style=social) ![GitHub forks](https://img.shields.io/github/forks/anhoder/musicfox?style=social)
 
 ## 感谢
 
@@ -42,7 +42,7 @@ musicfox是一款使用Dart编写的网易云音乐命令行程序。
 
 提供两种方式安装：
 
-1. 使用brew安装: `brew tap AlanAlbert/musicfox && brew install musicfox` 
+1. 使用brew安装: `brew tap anhoder/musicfox && brew install musicfox` 
 2. 直接下载[Mac可执行文件](./bin/musicfox.mac)，在iTerm或Terminal中打开
 
 Mac下默认使用AppleScript发送通知。如下：
@@ -92,7 +92,7 @@ Linux可以安装`libnotify-bin`来使用通知功能（未经测试）
 3. 上、下、左、右及ESC键无法监听，只能使用字母代替这些操作
 4. 命令行窗口大小发生变化后，UI会变乱（因为Windows不支持resize事件）
 
-*推荐在WSL下使用，WSL的声音转发可以参考我的另一个[项目](https://github.com/AlanAlbert/wsl-audio-musicbox)*
+*推荐在WSL下使用，WSL的声音转发可以参考我的另一个[项目](https://github.com/anhoder/wsl-audio-musicbox)*
 
 
 下载[Windows可执行文件](./bin/musicfox.exe)，在命令行中运行即可。
@@ -166,9 +166,9 @@ $ musicfox
 
 在该项目的开发过程中，我将一些通用的功能模块单独抽离出来，做成了几个伴生项目：
 
-* [mp3_player](https://github.com/AlanAlbert/mp3_player): dart命令行调用mpg123播放音乐
-* [colorful_cmd](https://github.com/AlanAlbert/colorful_cmd): 使用dart实现的一些命令行UI组件，如：WindowUI命令行窗口应用UI、RainbowProgress彩虹进度条、NotifierProxy三大平台通知代理、ColorText颜色文本...
-* [netease_music_request](https://github.com/AlanAlbert/netease_music_request): Dart实现的网易云音乐接口库，使用Dio发起请求，CookieJar管理Cookie信息
+* [mp3_player](https://github.com/anhoder/mp3_player): dart命令行调用mpg123播放音乐
+* [colorful_cmd](https://github.com/anhoder/colorful_cmd): 使用dart实现的一些命令行UI组件，如：WindowUI命令行窗口应用UI、RainbowProgress彩虹进度条、NotifierProxy三大平台通知代理、ColorText颜色文本...
+* [netease_music_request](https://github.com/anhoder/netease_music_request): Dart实现的网易云音乐接口库，使用Dio发起请求，CookieJar管理Cookie信息
 
 
 ## 项目起因
