@@ -1,5 +1,8 @@
 # musicfox
 
+## 为了解决一些体验问题，该项目已使用go进行重写，[go-musicfox](https://github.com/anhoder/go-musicfox)，该仓库停止维护...
+
+
 ```
 // TODO 优化
 // 1. 电台-我的订阅 登录校验
